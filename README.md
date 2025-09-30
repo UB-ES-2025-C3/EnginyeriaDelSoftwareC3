@@ -8,5 +8,6 @@ Membres:
 * Marc Lirola Tortosa
 * Pol Comas Romero
 * José Antonio Peñarrocha
+* Alberto Moreno Martínez
 
 
