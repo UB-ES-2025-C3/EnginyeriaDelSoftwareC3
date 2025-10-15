@@ -1,5 +1,10 @@
 USER STORY [1.2] Registre
 
-Tasca 1
+COM A usuari
+VULL registrar-me amb correu electrònic i contrasenya
+PER AIXÍ poder accedir a la plataforma
 
-Verificació que el correu introdüit sigui vàlid
+S'ha dividit aquesta història en tres tasques:
+1. Introducció d'un correu vàlid.
+2. Introducció d'una contrasenya vàlida.
+3. Creació del compte
