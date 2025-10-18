@@ -1,13 +1,11 @@
 <template>
-  <header>
-    <div id="app">
-      <router-view/>
-    </div>
-  </header>
+  <main>
+    <router-view />
+  </main>
 </template>
 
-<script setup>
-</script>
+<script setup lang="ts"></script>
 
-<style scoped>
+<style>
+main { padding: 1.25rem; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
 </style>

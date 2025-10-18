@@ -1,10 +1,36 @@
-USER STORY [1.2] Registre
+# Proyecto mínimo: registre (frontend) + backend (API)
 
-COM A usuari
-VULL registrar-me amb correu electrònic i contrasenya
-PER AIXÍ poder accedir a la plataforma
+Este ZIP contiene **solo**:
+- `registre/` (Vue + Vite)
+- `backend/`  (Node.js + Express + MongoDB)
 
-S'ha dividit aquesta història en tres tasques:
-1. Introducció d'un correu vàlid.
-2. Introducció d'una contrasenya vàlida.
-3. Creació del compte
+## Arranque
+### Backend
+```
+cd backend
+npm install
+copy .env.example .env
+npm run dev   # http://localhost:4000
+```
+
+### Frontend
+```
+cd registre
+npm install
+copy .env.example .env
+npm run dev   # http://localhost:5173
+```
+
+## Variables de entorno
+- Backend: `backend/.env`
+```
+PORT=4000
+MONGO_URI=mongodb://127.0.0.1:27017/registre
+JWT_SECRET=supersecreto_cambialo
+JWT_EXPIRES_IN=7d
+CORS_ORIGIN=http://localhost:5173
+```
+- Frontend: `registre/.env`
+```
+VITE_API_URL=http://localhost:4000
+```
