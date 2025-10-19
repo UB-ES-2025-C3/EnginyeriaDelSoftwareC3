@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { auth } from '@//services/auth'; // ⚠️ Ajusta el import si es necesario
+import { auth } from '@/services/auth'; // ⚠️ Ajusta el import si es necesario
 // import { useRouter } from 'vue-router'; const router = useRouter();
 
 const email = ref('');
