@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit';
 import { env } from './config/env.js';
 import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.routes.js';
+import profileRoutes from './routes/profile.routes.js';
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 
 app.use('/api/auth', rateLimit({ windowMs: 60_000, max: 20 }));
 app.use('/api/auth', authRoutes);
+app.use('/api/profile', profileRoutes);
 
 app.get('/health', (_, res) => res.json({ ok: true }));
 
@@ -28,3 +30,4 @@ connectDB()
     console.error('❌ Error conectando a MongoDB', e);
     process.exit(1);
   });
+  
