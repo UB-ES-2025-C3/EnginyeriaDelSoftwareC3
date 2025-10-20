@@ -56,7 +56,7 @@
         
         <button type="button" @click="resetForm" class="btn-cancel">Cancel·lar</button>
         
-        <button type="submit" class="btn-save" :disabled="loading">
+        <button type="submit" class="btn-save" :disabled="loading || !isDirty">
           {{ loading ? 'Desant...' : 'Desar canvis' }}
         </button>
       </div>
@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { api } from '@/services/api'; 
 import { auth } from '@/services/auth';
 
@@ -94,6 +94,29 @@ const links = ref({
 const loading = ref(false);
 const error = ref<string | null>(null);
 const success = ref(false);
+
+// helpers per comparar
+const normalize = (v: unknown) => (v ?? '') as string;
+const normalizeLinks = (obj: Record<string,string> = {}) => {
+  return {
+    steam: normalize(obj.steam),
+    psn: normalize(obj.psn),
+    xbox: normalize(obj.xbox),
+    nintendo: normalize(obj.nintendo),
+    twitch: normalize(obj.twitch),
+    youtube: normalize(obj.youtube),
+  };
+};
+
+// comprova si hi ha canvis
+const isDirty = computed(() => {
+  if (!originalData.value) return false;
+  const sameName = normalize(name.value) === normalize(originalData.value.name);
+  const sameBio  = normalize(bio.value)  === normalize(originalData.value.bio);
+  const sameLinks = JSON.stringify(normalizeLinks(links.value)) ===
+                    JSON.stringify(normalizeLinks(originalData.value.links || {}));
+  return !(sameName && sameBio && sameLinks);
+});
 
 /**
  * Funció per restablir el formulari a les dades originals
@@ -137,6 +160,13 @@ onMounted(async () => {
 async function handleSave() {
   if (!auth.state.token) return;
   
+  // No fer res si no hi ha canvis
+  if (!isDirty.value) {
+    success.value = false;
+    error.value = null;
+    return;
+  }
+
   loading.value = true;
   error.value = null;
   success.value = false;
