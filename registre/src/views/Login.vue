@@ -36,7 +36,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { auth } from '@/services/auth'; // ⚠️ Ajusta el import si es necesario
-// import { useRouter } from 'vue-router'; const router = useRouter();
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const email = ref('');
 const password = ref('');
@@ -51,6 +53,9 @@ async function submit() {
   try {
     await auth.login({ email: email.value, password: password.value });
     // router.push('/') // opcional: redirigir a home
+    // TEMPORAL: Redirigir a la nova pàgina de perfil
+    // TODO: Temporal. Canviar per '/' o '/dashboard' quan estigui llest
+    router.push('/perfil');
   } catch (e: any) {
     error.value = e?.error || 'Error iniciando sesión';
   } finally {
