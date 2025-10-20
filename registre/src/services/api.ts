@@ -1,5 +1,26 @@
 export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
+// Tipus de dades
+type UserProfile = {
+  _id: string;
+  name: string;
+  email: string;
+  bio?: string;
+  avatarUrl?: string;
+  bannerUrl?: string;
+  links?: {
+    [key: string]: string;
+  };
+};
+
+type UpdateProfilePayload = {
+  name?: string;
+  bio?: string;
+  links?: {
+    [key: string]: string;
+  };
+};
+
 async function http<T>(path: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { "Content-Type": "application/json", ...(opts?.headers || {}) },
@@ -23,5 +44,23 @@ export const api = {
   me: (token: string) =>
     http<{ user: { id: string; name: string; email: string } }>("/api/auth/me", {
       headers: { Authorization: `Bearer ${token}` },
+    }),
+
+
+  // Obté el perfil complet de l'usuari autenticat
+  getProfile: (token: string) =>
+    http<UserProfile>("/api/profile/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+
+  // Actualitza el perfil de l'usuari autenticat
+  updateProfile: (token: string, payload: UpdateProfilePayload) =>
+    http<UserProfile>("/api/profile/me", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(payload),
     }),
 };
