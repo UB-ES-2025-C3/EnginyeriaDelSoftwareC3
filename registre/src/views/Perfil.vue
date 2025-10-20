@@ -25,10 +25,19 @@
       <section class="form-section">
         <h3>Informació bàsica</h3>
         <label for="name">Nom d'usuari</label>
-        <input id="name" v-model="name" type="text" placeholder="El teu nom" />
+        <input id="name" v-model.trim="name" type="text" 
+                placeholder="El teu nom" :class="{ invalid: !!nameError }"
+                aria-describedby="name-help" />
+
+        <small id="name-help">El nom no pot estar buit (màx 60 caràcters).</small>
+        <p v-if="nameError" class="field-err" aria-live="assertive">{{ nameError }}</p>
 
         <label for="bio">Biografia</label>
-        <textarea id="bio" v-model="bio" placeholder="Explica'ns una mica sobre tu..."></textarea>
+        <textarea id="bio" v-model="bio" placeholder="Explica'ns una mica sobre tu..." maxlength="150"></textarea>
+
+        <div class="char-counter" :class="{ warn: bio.length >= 240 }">
+          {{ bio.length }}/250
+        </div>
 
         <label for="email">Correu electrònic</label>
         <input id="email" v-model="email" type="email" disabled />
@@ -56,7 +65,7 @@
         
         <button type="button" @click="resetForm" class="btn-cancel">Cancel·lar</button>
         
-        <button type="submit" class="btn-save" :disabled="loading || !isDirty">
+        <button type="submit" class="btn-save" :disabled="loading || !!nameError || !!bioError || !isDirty">
           {{ loading ? 'Desant...' : 'Desar canvis' }}
         </button>
       </div>
@@ -94,6 +103,19 @@ const links = ref({
 const loading = ref(false);
 const error = ref<string | null>(null);
 const success = ref(false);
+
+// Validació de nom d'usuari
+const nameError = computed(() => {
+  const n = (name.value || '').trim();
+  if (n.length === 0) return 'El nom no pot estar buit';
+  if (n.length > 60)  return 'Nom massa llarg (màx 60)';
+  return '';
+});
+
+// Validació de la biografia
+const bioError = computed(() => {
+  return bio.value.length > 250 ? 'Bio massa llarga (màx 250)' : '';
+});
 
 // helpers per comparar
 const normalize = (v: unknown) => (v ?? '') as string;
@@ -164,6 +186,12 @@ async function handleSave() {
   if (!isDirty.value) {
     success.value = false;
     error.value = null;
+    return;
+  }
+
+  // Validar abans d'enviar
+  if (nameError.value || bioError.value) {
+    error.value = nameError.value || bioError.value || 'Dades invàlides';
     return;
   }
 
