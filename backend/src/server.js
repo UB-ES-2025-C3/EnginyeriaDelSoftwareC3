@@ -1,4 +1,6 @@
 import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -19,6 +21,18 @@ app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 
 app.get('/health', (_, res) => res.json({ ok: true }));
+
+const uploadsPath = path.join(process.cwd(), 'uploads');
+
+app.use(
+  '/uploads',
+  cors({ origin: env.corsOrigin }), 
+  helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }),
+  express.static(uploadsPath)
+);
+
+app.use(helmet()); 
+app.use(cors({ origin: env.corsOrigin, credentials: true }));
 
 connectDB()
   .then(() => {

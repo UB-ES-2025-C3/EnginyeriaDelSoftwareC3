@@ -21,6 +21,11 @@ type UpdateProfilePayload = {
   };
 };
 
+type MediaResponse = {
+  avatarUrl?: string;
+  bannerUrl?: string;
+};
+
 async function http<T>(path: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { "Content-Type": "application/json", ...(opts?.headers || {}) },
@@ -62,5 +67,18 @@ export const api = {
         Authorization: `Bearer ${token}`
       },
       body: JSON.stringify(payload),
+    }),
+    
+  uploadProfileMedia: (token: string, formData: FormData) =>
+    fetch(`${API_BASE}/api/profile/me/media`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    }).then(async (res) => {
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw j?.error ? j : { error: res.statusText };
+      }
+      return res.json() as Promise<MediaResponse>;
     }),
 };
