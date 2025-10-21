@@ -2,8 +2,11 @@
 
 Este ZIP contiene **solo**:
 - `registre/` (Vue + Vite)
-- `backend/`  (Node.js + Express + MongoDB)
-
+- `frontend/`  (Node.js + Express + MongoDB + Tailwind)
+  - `landingpage` funcional con FrontEnd hecho
+  - `register` Con FrontEnd hecho (falta testear backEND)
+  - `login` Con FrontEnd hecho (falta testear backEND)
+  - `perfil` Con FrontEnd hecho (falta testear backEND y añadir posibilidad de cambiar fotos/background profile photo)
 ## Arranque
 ### Backend
 ```
@@ -15,7 +18,7 @@ npm run dev   # http://localhost:4000
 
 ### Frontend
 ```
-cd registre
+cd frontend
 npm install
 copy .env.example .env
 npm run dev   # http://localhost:5173
