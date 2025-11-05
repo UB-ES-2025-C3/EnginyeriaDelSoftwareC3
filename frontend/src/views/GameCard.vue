@@ -16,7 +16,7 @@
         {{ genre }} · {{ year }} · {{ platform }}
       </p>
       <router-link
-        :to="`/game/${id}`"
+        :disabled="`/game/${id}`"
         class="text-sm mt-2 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-1 px-2 rounded-full shadow-lg transition sm:py-2 sm:px-3 sm:text-sm sm:shadow-lg"
       >
         Visualitza detalls
