@@ -1,6 +1,6 @@
 <!-- src/views/TestCard.vue -->
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-gray-900 to-black py-12 px-4">
+  <div class="min-h-screen bg-linear-to-t from-gray-900 to-black py-12 px-4">
     <div class="max-w-2xl mx-auto">
       <h1 class="text-4l font-bold text-white text-center mb-5">
         Exemple de GameCard

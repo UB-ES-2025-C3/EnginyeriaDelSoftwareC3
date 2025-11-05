@@ -4,6 +4,7 @@ import Login from '../views/Login.vue';
 import Perfil from '../views/Perfil.vue';
 import LandingPage from '../views/LandingPage.vue'
 import GameCard from '../views/GameCard.vue';
+import CatalegJocs from '../views/CatalegJocs.vue';
 
 const routes = [
   { path: '/register', component: Register },
@@ -11,6 +12,7 @@ const routes = [
   { path: '/perfil', component: Perfil },
   { path: '/', component: LandingPage },
   { path: '/game/:id', component: GameCard },
+  { path: '/cataleg', component: CatalegJocs },
   { path: '/test', component: () => import('@/views/TestCard.vue') }
 ];
 

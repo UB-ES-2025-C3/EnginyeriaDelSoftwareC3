@@ -35,11 +35,11 @@
     </div>
 
     <!-- BUTTONS - Bottom Right -->
-    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 lg:gap-8 justify-center md:justify-end mt-8 sm:mt-12 md:mt-auto relative left-0 top-0 sm:left-0 sm:top-0 md:-left-[40px] md:-top-[60px] lg:-left-[67px] lg:-top-[84px]">
+    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 lg:gap-8 justify-center md:justify-end mt-8 sm:mt-12 md:mt-auto relative left-0 top-0 sm:left-0 sm:top-0 md:-left-10 md:-top-[60px] lg:-left-[67px] lg:-top-[84px]">
         <button
           @click="$router.push('/login')"
           class="px-6 py-3 sm:px-7 sm:py-3.5 md:px-8 md:py-4 text-sm sm:text-base border-2 border-gray-600 rounded-xl hover:bg-gray-800 transition-all font-semibold uppercase tracking-wide whitespace-nowrap"
-        > 
+        >
           Iniciar sessió
         </button>
         <button

@@ -4,7 +4,7 @@
     <!-- Imatge de fons -->
     <div class="relative h-64">
       <img :src="image" :alt="name" class="w-full h-full object-cover" />
-      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"></div>
+      <div class="absolute inset-0 bg-linear-to-t from-black via-black/70 to-transparent"></div>
     </div>
 
     <!-- Contingut sobre la imatge -->
