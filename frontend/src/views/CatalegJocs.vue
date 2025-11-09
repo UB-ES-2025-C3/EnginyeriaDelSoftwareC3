@@ -44,58 +44,30 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted  } from 'vue'
 import GameCard from '@/views/GameCardMini.vue'
+import { api } from '@/services/api'
 
-// DADES REALS (amb imatges verificades)
-const games = ref([
-  {
-    id: 1,
-    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2322010/header.jpg?t=1750909504',
-    name: 'God of War Ragnarök',
-    genre: 'Acció',
-    year: 2022,
-    platform: 'PS5',
-    reviews: [
-      { stars: 5, text: 'Una obra mestra. Millor que l\'original en tots els sentits.' },
-      { stars: 4, text: 'Combat fluid i història captivadora. Gràfics de nova generació.' }
-    ]
-  },
-  {
-    id: 2,
-    image: 'https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co1wzo.jpg',
-    name: 'The Legend of Zelda: Breath of the Wild',
-    genre: 'Aventura',
-    year: 2017,
-    platform: 'Switch',
-    reviews: [
-      { stars: 5, text: 'El millor joc open-world de la història. Llibertat total.' },
-      { stars: 5, text: 'Una experiència màgica que redefineix el gènere.' }
-    ]
-  },
-  {
-    id: 3,
-    image: 'https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co4b7v.jpg',
-    name: 'Hades',
-    genre: 'Roguelike',
-    year: 2020,
-    platform: 'PC',
-    reviews: [
-      { stars: 5, text: 'Addictiu, divertit i amb una història sorprenent.' },
-      { stars: 4, text: 'El millor roguelike modern. Música i art espectaculars.' }
-    ]
-  },
-  {
-    id: 4,
-    image: 'https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co1wyy.jpg',
-    name: 'Cyberpunk 2077',
-    genre: 'RPG',
-    year: 2020,
-    platform: 'PC',
-    reviews: [
-      { stars: 4, text: 'Un món increïble. La història principal és brutal.' },
-      { stars: 3, text: 'Tècnicament millorable, però l\'ambient és únic.' }
-    ]
+// Array pels jocs
+const games = ref([])
+
+onMounted(async () => {
+  try {
+    const data = await api.getGames()
+    console.log('Jocs obtinguts del backend:', data)
+
+    // 🔹 Adaptar el format del backend al del component GameCard
+    games.value = data.map(g => ({
+      id: g._id,                 // backend usa "_id"
+      image: g.image,
+      name: g.name,
+      genre: g.genre,
+      year: Number(g.year),      // per si ve com string
+      platform: g.platform,
+      reviews: g.reviews || []
+    }))
+  } catch (err) {
+    console.error('Error carregant jocs del backend:', err)
   }
-])
+})
 </script>

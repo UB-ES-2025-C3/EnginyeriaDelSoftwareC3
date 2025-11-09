@@ -26,6 +26,21 @@ type MediaResponse = {
   bannerUrl?: string;
 };
 
+export type Review = {
+  stars: number;
+  text: string;
+};
+
+export type Game = {
+  _id: string;
+  name: string;
+  genre: string;
+  year: number;
+  platform: string;
+  image: string;
+  reviews: Review[];
+};
+
 async function http<T>(path: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { "Content-Type": "application/json", ...(opts?.headers || {}) },
@@ -81,4 +96,8 @@ export const api = {
       }
       return res.json() as Promise<MediaResponse>;
     }),
+
+  // Jocs
+  getGames: () => http<Game[]>("/api/games"),
+  getGame:  (id: string) => http<Game>(`/api/games/${id}`),
 };
