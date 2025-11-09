@@ -1,7 +1,7 @@
 <!-- src/components/GameCardMini.vue -->
 <template>
   <router-link
-    :to="`/test`"
+    :to="`/game/${id}`"
     class="group block rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
     style="width: 200px; height: 280px;"
   >

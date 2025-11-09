@@ -11,9 +11,8 @@ const routes = [
   { path: '/login', component: Login },
   { path: '/perfil', component: Perfil },
   { path: '/', component: LandingPage },
-  { path: '/game/:id', component: GameCard },
-  { path: '/cataleg', component: CatalegJocs },
-  { path: '/test', component: () => import('@/views/TestCard.vue') }
+  { path: '/game/:id', component: GameCard, props: true },
+  { path: '/cataleg', component: CatalegJocs }
 ];
 
 
