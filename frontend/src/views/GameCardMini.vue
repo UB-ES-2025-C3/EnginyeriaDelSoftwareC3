@@ -30,7 +30,7 @@
           </div>
           
           <div v-else class="text-xs text-gray-400">
-            Sin reseñas aún
+            Sense ressenyes encara 
           </div>
           
           <!-- Platform -->

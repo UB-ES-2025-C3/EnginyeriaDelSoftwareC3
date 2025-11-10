@@ -3,63 +3,37 @@
   <div class="min-h-screen bg-gradient-to-t from-gray-900 to-black text-white">
     <header class="sticky top-0 z-50 bg-gray-900/95 backdrop-blur-md border-b border-gray-800 shadow-lg">
       <div class="w-full px-6 py-4">
-        <div class="flex items-center gap-6">
-          <!-- Logo y navegación principal -->
-          <div class="flex items-center gap-8 flex-shrink-0">
-            <div class="flex items-center gap-2">
+        <div class="grid grid-cols-3 items-center gap-4">
+          <!-- IZQUIERDA: Logo y navegación -->
+          <div class="flex items-center gap-6">
+            <router-link to="/cataleg" class="flex items-center gap-2">
               <div class="w-8 h-8 flex items-center justify-center">
                 <img src="../assets/staticlogo.png" alt="Home" class="w-5 h-auto" />
               </div>
               <span class="font-bold text-xl hidden sm:block">CheckPoint</span>
-            </div>
+            </router-link>
             
-            <nav class="hidden md:flex items-center gap-6">
-              <button class="text-gray-300 hover:text-white transition-colors font-medium">
-                Home
+            <nav class="hidden lg:flex items-center gap-6">
+              <button class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
+                <span class="text-sm">👥</span> Comunitat
               </button>
-              <button class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium">
-                <span class="text-sm">👥</span>
-                Comunitat
-              </button>
-              <button class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium">
-                <span class="text-sm">❓</span>
-                Suport
+              <button class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
+                <span class="text-sm">❓</span> Suport
               </button>
             </nav>
           </div>
 
-          <!-- Buscador -->
-          <div class="flex-1 relative">
-            <div class="relative">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-              <input 
-                type="text"
-                placeholder="Buscar juegos..."
-                v-model="searchQuery"
-                @input="handleSearch"
-                @focus="showSearchDropdown = searchQuery.length > 0"
-                @blur="hideDropdown"
-                class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-              />
+          <!-- CENTRO: Buscador -->
+          <div class="relative">
+            <div class="relative max-w-lg mx-auto">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">🔍</span>
+              <input type="text" placeholder="Buscar jocs..." v-model="searchQuery" @input="handleSearch" @focus="showSearchDropdown = searchQuery.length > 0" @blur="hideDropdown" class="w-full bg-gray-800 border border-gray-700 rounded-full pl-12 pr-5 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all hover:bg-gray-750" />
             </div>
 
             <!-- Dropdown de búsqueda -->
-            <div 
-              v-if="showSearchDropdown && filteredGames.length > 0"
-              class="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl max-h-96 overflow-y-auto"
-            >
-              <router-link
-                v-for="game in filteredGames"
-                :key="game.id"
-                :to="`/game/${game.id}`"
-                class="flex items-center gap-3 p-3 hover:bg-gray-700 cursor-pointer transition-colors"
-                @click="closeDropdown"
-              >
-                <img 
-                  :src="game.image" 
-                  :alt="game.name"
-                  class="w-12 h-16 object-cover rounded"
-                />
+            <div v-if="showSearchDropdown && filteredGames.length > 0" class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50">
+              <router-link v-for="game in filteredGames" :key="game.id" :to="`/game/${game.id}`" class="flex items-center gap-3 p-3 hover:bg-gray-700 cursor-pointer transition-colors" @click="closeDropdown">
+                <img :src="game.image" :alt="game.name" class="w-12 h-16 object-cover rounded" />
                 <div class="flex-1">
                   <p class="font-semibold text-white">{{ game.name }}</p>
                   <p class="text-xs text-gray-400">{{ game.genre }} • {{ game.year }}</p>
@@ -68,22 +42,45 @@
             </div>
 
             <!-- Mensaje cuando no hay resultados -->
-            <div 
-              v-if="showSearchDropdown && searchQuery && filteredGames.length === 0"
-              class="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 text-center text-gray-400"
-            >
+            <div v-if="showSearchDropdown && searchQuery && filteredGames.length === 0" class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 text-center text-gray-400 z-50">
               No s'han trobat jocs.
             </div>
           </div>
 
-          <!-- User actions -->
-          <div class="flex items-center gap-3 flex-shrink-0">
-            <button class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
+          <!-- DERECHA: User actions -->
+          <div class="flex items-center justify-end gap-4">
+            <!-- ⭐ AVATAR DEL USUARIO -->
+            <router-link v-if="isLoggedIn" to="/perfil" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors overflow-hidden border-2 border-gray-700 hover:border-purple-500" title="Veure perfil">
+              <!-- Mostrar imagen si existe -->
+              <img v-if="userAvatar" :src="userAvatar" :alt="userName" class="w-full h-full object-cover" />
+              <!-- Mostrar iniciales si no hay imagen -->
+              <span v-else class="text-sm font-bold">{{ userInitials }}</span>
+            </router-link>
+
+            <!-- Si no está autenticado -->
+            <router-link v-else to="/login" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors" title="Iniciar sessió">
               <span class="text-xl">👤</span>
-            </button>
-            <button class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
-              <span class="text-xl">⚙️</span>
-            </button>
+            </router-link>
+
+            <!-- Botón de configuración / logout -->
+            <div class="relative" ref="menuRef">
+              <button @click="showMenu = !showMenu" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
+                <span class="text-xl">⚙️</span>
+              </button>
+
+              <!-- Dropdown menu -->
+              <div v-if="showMenu" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl py-2 z-50">
+                <router-link v-if="isLoggedIn" to="/perfil" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors" @click="showMenu = false">
+                  📝 Editar perfil
+                </router-link>
+                <button v-if="isLoggedIn" @click="handleLogout" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+                  🚪 Tancar sessió
+                </button>
+                <router-link v-else to="/login" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors" @click="showMenu = false">
+                  🔑 Iniciar sessió
+                </router-link>
+              </div>
+            </div>
           </div>
         </div>
       </div>
