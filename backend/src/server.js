@@ -12,6 +12,7 @@ import profileRoutes from './routes/profile.routes.js';
 import gameRoutes from './routes/game.routes.js';
 
 const app = express();
+app.set('trust proxy', 1);
 
 app.use(helmet());
 app.use(cors({ origin: env.corsOrigin, credentials: true }));
