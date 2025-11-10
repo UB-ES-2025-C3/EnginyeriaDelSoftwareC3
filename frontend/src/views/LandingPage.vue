@@ -40,13 +40,13 @@
           @click="$router.push('/login')"
           class="px-6 py-3 sm:px-7 sm:py-3.5 md:px-8 md:py-4 text-sm sm:text-base border-2 border-gray-600 rounded-xl hover:bg-gray-800 transition-all font-semibold uppercase tracking-wide whitespace-nowrap"
         >
-          Iniciar sessió
+          Iniciar sessió/Registrar-se
         </button>
         <button
-          @click="$router.push('/register')"
+          @click="$router.push('/Cataleg')"
           class="px-6 py-3 sm:px-7 sm:py-3.5 md:px-8 md:py-4 text-sm sm:text-base border-2 border-gray-600 rounded-xl hover:bg-gray-800 transition-all font-semibold uppercase tracking-wide whitespace-nowrap"
         >
-          Registrar-se
+          Accedeix com a convidat
         </button>
     </div>
   </section>
