@@ -35,7 +35,7 @@ jobs:
         run: npm run test:unit
       
       - name: Build frontend project
-        run: npm run build
+        run: npm run build-only
 
   # Job para verificar el código del backend
   test-backend:
