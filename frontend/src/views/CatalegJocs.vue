@@ -76,9 +76,12 @@
 
           <!-- DERECHA: User actions -->
           <div class="flex items-center justify-end gap-4">
-            <button class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
+            <router-link 
+              to="/perfil"
+              class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors"
+            >
               <span class="text-xl">👤</span>
-            </button>
+            </router-link>
             <button class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
               <span class="text-xl">⚙️</span>
             </button>
