@@ -98,10 +98,6 @@
             <p class="text-sm text-gray-300 mb-4">{{ genre }} · {{ year }} · {{ platform }}</p>
 
             <div class="flex items-center gap-4">
-              <button type="button" disabled aria-disabled="true" title="Próximamente" class="text-sm inline-block bg-purple-600 text-white font-semibold py-2 px-3 rounded-full shadow-md opacity-70 cursor-not-allowed">
-                Visualitza detalls
-              </button>
-
               <div class="flex items-center gap-2 text-sm text-gray-300">
                 <span class="font-semibold text-white">{{ reviews.length }} ressenyes</span>
                 <span class="text-gray-500">•</span>
