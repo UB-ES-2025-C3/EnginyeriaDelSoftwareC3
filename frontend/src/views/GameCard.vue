@@ -19,11 +19,11 @@
               </button>
               <button class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium">
                 <span class="text-sm">👥</span>
-                Comunidad
+                Comunitat
               </button>
               <button class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium">
                 <span class="text-sm">❓</span>
-                Soporte
+                Suport
               </button>
             </nav>
           </div>
@@ -72,7 +72,7 @@
               v-if="showSearchDropdown && searchQuery && filteredGames.length === 0"
               class="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 text-center text-gray-400"
             >
-              No se encontraron juegos
+              No s'han trobat jocs.
             </div>
           </div>
 
@@ -115,7 +115,7 @@
               </button>
 
               <div class="flex items-center gap-2 text-sm text-gray-300">
-                <span class="font-semibold text-white">{{ reviews.length }} reseñas</span>
+                <span class="font-semibold text-white">{{ reviews.length }} ressenyes</span>
                 <span class="text-gray-500">•</span>
                 <div class="flex items-center gap-1">
                   <template v-if="reviews && reviews.length">
@@ -124,7 +124,7 @@
                     <span class="text-gray-400 ml-2">{{ avgRating.toFixed(1) }}</span>
                   </template>
                   <template v-else>
-                    <span class="text-gray-500">Sin reseñas</span>
+                    <span class="text-gray-500">Sense ressenyes</span>
                   </template>
                 </div>
               </div>
@@ -134,10 +134,10 @@
 
         <!-- Reseñas (contenido principal bajo la tarjeta) -->
         <div class="px-6 pb-8 pt-6">
-          <h3 class="text-xl font-bold mb-4">Reseñas recientes</h3>
+          <h3 class="text-xl font-bold mb-4">Resenyes recents</h3>
 
           <div v-if="reviews.length === 0" class="text-sm text-gray-400">
-            Aún no hay reseñas.
+            Encara no hi ha ressenyes per a aquest joc. Sigues el primer a escriure una ressenya!
           </div>
 
           <div v-else class="space-y-4">
@@ -170,41 +170,41 @@
       <div class="max-w-7xl mx-auto px-4 py-12">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 class="font-bold text-lg mb-4">GameHub</h3>
+            <h3 class="font-bold text-lg mb-4">CheckPoint</h3>
             <p class="text-gray-400 text-sm">
-              Tu plataforma de confianza para descubrir, valorar y compartir tus juegos favoritos.
+              La teva plataforma de confiança per descobrir, valorar i compartir els teus jocs favorits.
             </p>
           </div>
           <div>
             <h4 class="font-semibold mb-4">Explorar</h4>
             <ul class="space-y-2 text-sm">
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Catálogo</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Novedades</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Más valorados</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Próximos lanzamientos</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Catàleg</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Novetats</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Més valorats</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Pròxims llançaments</a></li>
             </ul>
           </div>
           <div>
-            <h4 class="font-semibold mb-4">Comunidad</h4>
+            <h4 class="font-semibold mb-4">Comunitat</h4>
             <ul class="space-y-2 text-sm">
               <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Foros</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Reviews</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Eventos</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Ressenyes</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Esdeveniments</a></li>
               <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Discord</a></li>
             </ul>
           </div>
           <div>
-            <h4 class="font-semibold mb-4">Soporte</h4>
+            <h4 class="font-semibold mb-4">Suport</h4>
             <ul class="space-y-2 text-sm">
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Centro de ayuda</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contacto</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Política de privacidad</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Términos de uso</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Centre d'ajuda</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contacte</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Política de privadesa</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Termes d'ús</a></li>
             </ul>
           </div>
         </div>
         <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-          <p>&copy; 2025 GameHub. Todos los derechos reservados.</p>
+          <p>&copy; 2025 CheckPoint. Tots els drets reservats.</p>
         </div>
       </div>
     </footer>

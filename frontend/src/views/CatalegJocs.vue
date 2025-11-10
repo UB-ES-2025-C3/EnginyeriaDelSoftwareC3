@@ -4,9 +4,9 @@
     <!-- Header / Navigation -->
     <header class="sticky top-0 z-50 bg-gray-900/95 backdrop-blur-md border-b border-gray-800 shadow-lg">
       <div class="w-full px-6 py-4">
-        <div class="flex items-center gap-6">
-          <!-- Logo y navegación principal -->
-          <div class="flex items-center gap-8 flex-shrink-0">
+        <div class="grid grid-cols-3 items-center gap-4">
+          <!-- IZQUIERDA: Logo y navegación -->
+          <div class="flex items-center gap-6">
             <div class="flex items-center gap-2">
               <div class="w-8 h-8 flex items-center justify-center">
                 <img src="../assets/staticlogo.png" alt="Home" class="w-5 h-auto" />
@@ -14,40 +14,37 @@
               <span class="font-bold text-xl hidden sm:block">CheckPoint</span>
             </div>
             
-            <nav class="hidden md:flex items-center gap-6">
-              <button class="text-gray-300 hover:text-white transition-colors font-medium">
-                Home
-              </button>
-              <button class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium">
+            <nav class="hidden lg:flex items-center gap-6">
+              <button class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
                 <span class="text-sm">👥</span>
-                Comunidad
+                Comunitat
               </button>
-              <button class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium">
+              <button class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
                 <span class="text-sm">❓</span>
-                Soporte
+                Suport
               </button>
             </nav>
           </div>
 
-          <!-- Buscador -->
-          <div class="flex-1 relative">
-            <div class="relative">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+          <!-- CENTRO: Buscador MÁS GRANDE -->
+          <div class="relative">
+            <div class="relative max-w-lg mx-auto">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">🔍</span>
               <input 
                 type="text"
-                placeholder="Buscar juegos..."
+                placeholder="Buscar jocs..."
                 v-model="searchQuery"
                 @input="handleSearch"
                 @focus="showSearchDropdown = searchQuery.length > 0"
                 @blur="hideDropdown"
-                class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                class="w-full bg-gray-800 border border-gray-700 rounded-full pl-12 pr-5 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all hover:bg-gray-750"
               />
             </div>
 
             <!-- Dropdown de búsqueda -->
             <div 
               v-if="showSearchDropdown && filteredGames.length > 0"
-              class="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl max-h-96 overflow-y-auto"
+              class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl max-h-96 overflow-y-auto"
             >
               <router-link
                 v-for="game in filteredGames"
@@ -71,14 +68,14 @@
             <!-- Mensaje cuando no hay resultados -->
             <div 
               v-if="showSearchDropdown && searchQuery && filteredGames.length === 0"
-              class="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 text-center text-gray-400"
+              class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 text-center text-gray-400"
             >
-              No se encontraron juegos
+              No s'han trobat jocs.
             </div>
           </div>
 
-          <!-- User actions -->
-          <div class="flex items-center gap-3 flex-shrink-0">
+          <!-- DERECHA: User actions -->
+          <div class="flex items-center justify-end gap-4">
             <button class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
               <span class="text-xl">👤</span>
             </button>
@@ -91,39 +88,48 @@
     </header>
 
 <!-- Hero Section -->
-  <div class="relative h-[350px] md:h-[450px] overflow-hidden">
+  <div class="relative h-[280px] md:h-[320px] overflow-hidden">
     <img 
       src="../assets/background_image.jpg"
       alt="Hero"
-      class="w-full h-full object-cover object-center transition-all duration-500"
+      class="w-full h-full object-cover object-center scale-105"
+      style="object-position: center 60%;"
     />
 
-    <!-- Degradado sutil -->
-    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+    <!-- Overlay con efecto moderno -->
+    <div class="absolute inset-0 bg-gradient-to-b from-gray-900/70 via-gray-900/50 to-gray-900" />
+    
+    <!-- Efecto de spotlight desde arriba -->
+    <div class="absolute inset-0 bg-gradient-to-b from-purple-500/10 via-transparent to-transparent" />
 
-    <!-- Texto -->
+    <!-- Contenido centrado -->
     <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-      <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-3 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
-        Catálogo de Juegos
-      </h1>
-      <p class="text-lg md:text-xl text-gray-300 max-w-2xl drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">
-        Descubre y valora los mejores títulos de la comunidad
-      </p>
+      <div class="space-y-3 max-w-3xl">
+        <h1 class="text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-white">
+          Catàleg de Jocs
+        </h1>
+        <p class="text-base md:text-lg text-gray-300 font-medium">
+          Descobreix i valora els millors títols de la comunitat
+        </p>
+      </div>
     </div>
+
+    <!-- Línea inferior decorativa -->
+    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
   </div>
 
 
 
-    <!-- Catálogo de juegos -->
+    <!-- Catàleg de jocs -->
     <div class="max-w-7xl mx-auto px-4 py-12">
       <div class="mb-8">
-        <h2 class="text-3xl font-bold mb-2">Juegos Destacados</h2>
-        <p class="text-gray-400">Explora nuestra selección de títulos populares</p>
+        <h2 class="text-3xl font-bold mb-2">Jocs Destacats</h2>
+        <p class="text-gray-400">Explora la nostra selecció de títols populars</p>
       </div>
 
       <!-- Loading state -->
       <div v-if="loading" class="text-center py-20">
-        <p class="text-gray-400 text-lg">Cargando juegos...</p>
+        <p class="text-gray-400 text-lg">Carregant jocs...</p>
       </div>
 
       <!-- Grid de juegos -->
@@ -143,7 +149,7 @@
 
       <!-- Mensaje si no hay juegos -->
       <div v-if="!loading && games.length === 0" class="text-center py-20">
-        <p class="text-gray-400 text-lg">No se encontraron juegos. ¡Vuelve pronto!</p>
+        <p class="text-gray-400 text-lg">No s'han trobat jocs. Torna aviat!</p>
       </div>
     </div>
 
@@ -152,41 +158,41 @@
       <div class="max-w-7xl mx-auto px-4 py-12">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 class="font-bold text-lg mb-4">GameHub</h3>
+            <h3 class="font-bold text-lg mb-4">CheckPoint</h3>
             <p class="text-gray-400 text-sm">
-              Tu plataforma de confianza para descubrir, valorar y compartir tus juegos favoritos.
+              La teva plataforma de confiança per descobrir, valorar i compartir els teus jocs favorits.
             </p>
           </div>
           <div>
             <h4 class="font-semibold mb-4">Explorar</h4>
             <ul class="space-y-2 text-sm">
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Catálogo</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Novedades</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Más valorados</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Próximos lanzamientos</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Catàleg</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Novetats</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Més valorats</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Pròxims llançaments</a></li>
             </ul>
           </div>
           <div>
-            <h4 class="font-semibold mb-4">Comunidad</h4>
+            <h4 class="font-semibold mb-4">Comunitat</h4>
             <ul class="space-y-2 text-sm">
               <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Foros</a></li>
               <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Reviews</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Eventos</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Esdeveniments</a></li>
               <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Discord</a></li>
             </ul>
           </div>
           <div>
-            <h4 class="font-semibold mb-4">Soporte</h4>
+            <h4 class="font-semibold mb-4">Suport</h4>
             <ul class="space-y-2 text-sm">
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Centro de ayuda</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contacto</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Política de privacidad</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Términos de uso</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Centre d'ajuda</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contacte</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Política de privacitat</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Termes d'ús</a></li>
             </ul>
           </div>
         </div>
         <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-          <p>&copy; 2025 GameHub. Todos los derechos reservados.</p>
+          <p>&copy; 2025 CheckPoint. Tots els drets reservats.</p>
         </div>
       </div>
     </footer>
