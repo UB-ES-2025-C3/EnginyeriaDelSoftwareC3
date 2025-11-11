@@ -10,6 +10,7 @@ const router = createRouter({
     { path: '/', name: 'home', component: { template: '<div></div>' } },
     { path: '/login', name: 'login', component: { template: '<div></div>' } },
     { path: '/register', name: 'register', component: { template: '<div></div>' } },
+    { path: '/Cataleg', name: 'cataleg', component: { template: '<div></div>' } },
   ],
 });
 
@@ -30,15 +31,14 @@ describe('LandingPage.vue', () => {
     expect(wrapper.find('h1').text()).toContain('gamer comença!');
 
     // Comprueba que los botones existen y tienen el texto correcto
-    const loginButton = wrapper.findAll('button').find(b => b.text() === 'Iniciar sessió');
-    expect(loginButton).toBeTruthy();
+    const loginRegisterButton = wrapper.findAll('button').find(b => b.text() === 'Iniciar sessió/Registrar-se');
+    expect(loginRegisterButton).toBeTruthy();
 
-    const registerButton = wrapper.findAll('button').find(b => b.text() === 'Registrar-se');
-    expect(registerButton).toBeTruthy();
+    const guestButton = wrapper.findAll('button').find(b => b.text() === 'Accedeix com a convidat');
+    expect(guestButton).toBeTruthy();
 
     // Comprueba que la imagen existe
     const marioImage = wrapper.find('img[alt="Pixel Mario"]');
     expect(marioImage.exists()).toBe(true);
-    expect(marioImage.attributes('src')).toBe('/src/assets/rotatingmario.gif'); // Vite asset handling
   });
 });

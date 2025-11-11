@@ -8,7 +8,8 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', name: 'home', component: { template: '<div></div>' } },
-    { path: '/login', name: 'login', component: { template: '<div></div>' } }
+    { path: '/login', name: 'login', component: { template: '<div></div>' } },
+    { path: '/Cataleg', name: 'cataleg', component: { template: '<div></div>' } },
   ],
 });
 
@@ -28,13 +29,13 @@ describe('Register.vue', () => {
     expect(wrapper.find('h2').text()).toBe('Crear compte');
 
     // Comprueba que los inputs existen
-    const nameInput = wrapper.find('input[type="text"]');
+    const nameInput = wrapper.find('input[placeholder="El teu nom"]');
     expect(nameInput.exists()).toBe(true);
 
-    const emailInput = wrapper.find('input[type="email"]');
+    const emailInput = wrapper.find('input[placeholder="tucorreo@mail.com"]');
     expect(emailInput.exists()).toBe(true);
 
-    const passwordInput = wrapper.find('input[type="password"]');
+    const passwordInput = wrapper.find('input[placeholder="Mínim 8 caràcters (Aa0...)"]');
     expect(passwordInput.exists()).toBe(true);
 
     // Comprueba que el botón de submit existe y tiene el texto correcto
