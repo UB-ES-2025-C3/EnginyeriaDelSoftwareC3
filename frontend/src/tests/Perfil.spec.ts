@@ -8,6 +8,7 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', name: 'home', component: { template: '<div></div>' } },
+    { path: '/cataleg', name: 'cataleg', component: { template: '<div></div>' } }, // Added for /cataleg route
   ],
 });
 
