@@ -3,6 +3,5 @@ dist
 build
 .next
 .DS_Store
-.env
 .env.local
 .env.*.local
