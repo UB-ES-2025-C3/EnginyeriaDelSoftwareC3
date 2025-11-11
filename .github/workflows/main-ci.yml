@@ -1,0 +1,69 @@
+# Flujo de trabajo de Integración Continua Principal
+
+name: Main CI
+
+# Disparadores: se ejecuta en push y pull requests a las ramas especificadas
+on:
+  push:
+    branches:
+      - develop
+      - pre_deploy
+      - deploy
+  pull_request:
+    branches:
+      - pre_deploy
+      - deploy
+
+jobs:
+  # Job para verificar el código del frontend
+  test-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Run frontend unit tests
+        run: npm run test:unit
+      
+      - name: Build frontend project
+        run: npm run build-only
+
+  # Job para verificar el código del backend
+  test-backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm install
+
+      - name: Run backend tests
+        run: npm test
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI_TEST }}

@@ -51,9 +51,7 @@
           <div class="flex items-center justify-end gap-4">
             <!-- ⭐ AVATAR DEL USUARIO -->
             <router-link v-if="isLoggedIn" to="/perfil" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors overflow-hidden border-2 border-gray-700 hover:border-purple-500" title="Veure perfil">
-              <!-- Mostrar imagen si existe -->
               <img v-if="userAvatar" :src="userAvatar" :alt="userName" class="w-full h-full object-cover" />
-              <!-- Mostrar iniciales si no hay imagen -->
               <span v-else class="text-sm font-bold">{{ userInitials }}</span>
             </router-link>
 
@@ -90,7 +88,6 @@
         <!-- Imagen del juego (banner) -->
         <div class="relative w-full h-64 md:h-96">
           <img :src="image" :alt="name" class="w-full h-full object-cover object-center" />
-          <!-- overlay oscuro para legibilidad -->
           <div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"></div>
         </div>
 
@@ -101,16 +98,6 @@
             <p class="text-sm text-gray-300 mb-4">{{ genre }} · {{ year }} · {{ platform }}</p>
 
             <div class="flex items-center gap-4">
-              <button
-                type="button"
-                disabled
-                aria-disabled="true"
-                title="Próximamente"
-                class="text-sm inline-block bg-purple-600 text-white font-semibold py-2 px-3 rounded-full shadow-md opacity-70 cursor-not-allowed"
-              >
-                Visualitza detalls
-              </button>
-
               <div class="flex items-center gap-2 text-sm text-gray-300">
                 <span class="font-semibold text-white">{{ reviews.length }} ressenyes</span>
                 <span class="text-gray-500">•</span>
@@ -129,7 +116,7 @@
           </div>
         </div>
 
-        <!-- Reseñas (contenido principal bajo la tarjeta) -->
+        <!-- Reseñas -->
         <div class="px-6 pb-8 pt-6">
           <h3 class="text-xl font-bold mb-4">Resenyes recents</h3>
 
@@ -151,7 +138,7 @@
                       <Star v-for="n in review.stars" :key="`rfull-${i}-${n}`" class="w-4 h-4 fill-yellow-400" />
                       <Star v-for="n in (5 - review.stars)" :key="`rempty-${i}-${n}`" class="w-4 h-4 fill-gray-600" />
                     </div>
-                    <span class="text-sm text-gray-300 font-semibold">{{ review.title || 'Reseña' }}</span>
+                    <span class="text-sm text-gray-300 font-semibold">{{ review.title || 'Ressenya' }}</span>
                   </div>
                   <span class="text-xs text-gray-400">{{ review.date || '' }}</span>
                 </div>
@@ -168,9 +155,7 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 class="font-bold text-lg mb-4">CheckPoint</h3>
-            <p class="text-gray-400 text-sm">
-              La teva plataforma de confiança per descobrir, valorar i compartir els teus jocs favorits.
-            </p>
+            <p class="text-gray-400 text-sm">La teva plataforma de confiança per descobrir, valorar i compartir els teus jocs favorits.</p>
           </div>
           <div>
             <h4 class="font-semibold mb-4">Explorar</h4>
@@ -208,24 +193,63 @@
   </div> 
 </template>
 
-<script setup>
-import { ref, onMounted, watch, computed } from 'vue'
-import { useRoute } from 'vue-router'
+<script setup lang="ts">
+import { ref, onMounted, watch, computed, onBeforeUnmount } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { api } from '@/services/api'
+import { auth } from '@/services/auth'
 import Star from '@/components/icons/Star.vue'
+
+// ⭐ Definir tipos
+interface Review {
+  stars: number
+  text: string
+  user?: string
+  title?: string
+  date?: string
+}
+
+// ⭐ Tipo para los juegos en búsqueda
+interface GameSearchResult {
+  id: string
+  name: string
+  genre: string
+  year: number
+  image: string
+}
 
 const props = defineProps({
   id: { type: [String, Number], required: false }
 })
 
+// Estados de autenticación
+const isLoggedIn = computed(() => !!auth.state.token && !!auth.state.user)
+const userName = computed(() => auth.state.user?.name || '')
+const userAvatar = computed(() => auth.state.user?.avatarUrl || '')
+const userInitials = computed(() => {
+  if (!auth.state.user?.name) return '?'
+  const names = auth.state.user.name.trim().split(' ')
+  if (names.length >= 2) return `${names[0][0]}${names[1][0]}`.toUpperCase()
+  return names[0][0].toUpperCase()
+})
+
+// Estados del componente
 const image = ref('')
 const name = ref('')
 const genre = ref('')
 const year = ref(0)
 const platform = ref('')
-const reviews = ref([])
+const reviews = ref<Review[]>([])
+
+// Estados del header (búsqueda y menú)
+const searchQuery = ref('')
+const showSearchDropdown = ref(false)
+const filteredGames = ref<GameSearchResult[]>([]) // ⭐ TIPADO CORRECTO
+const showMenu = ref(false)
+const menuRef = ref<HTMLDivElement | null>(null)
 
 const route = useRoute()
+const router = useRouter()
 const gameId = ref(String(props.id ?? route.params.id ?? ''))
 
 async function loadGame() {
@@ -243,7 +267,33 @@ async function loadGame() {
   }
 }
 
-onMounted(loadGame)
+// Funciones del header
+const handleSearch = () => { showSearchDropdown.value = searchQuery.value.length > 0 }
+const hideDropdown = () => { setTimeout(() => { showSearchDropdown.value = false }, 200) }
+const closeDropdown = () => { showSearchDropdown.value = false; searchQuery.value = '' }
+
+const handleLogout = () => {
+  auth.logout()
+  showMenu.value = false
+  router.push('/login')
+}
+
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as Node
+  if (menuRef.value && !menuRef.value.contains(target)) { 
+    showMenu.value = false 
+  }
+}
+
+onMounted(() => {
+  loadGame()
+  document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
 watch(() => route.params.id, v => {
   gameId.value = String(v ?? '')
   loadGame()

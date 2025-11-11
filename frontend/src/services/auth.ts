@@ -1,7 +1,7 @@
 import { reactive } from "vue";
 import { api } from "./api";
 
-// ⭐ CAMBIO 1: Tipo User completo con todos los campos
+// ⭐ Tipo User completo con todos los campos
 type User = { 
   id: string; 
   name: string; 
@@ -16,20 +16,21 @@ type User = {
 
 const state = reactive<{ token: string | null; user: User | null }>({
   token: localStorage.getItem("token"),
-  user: JSON.parse(localStorage.getItem("user") || "null"), // ⭐ CAMBIO 2: Cargar usuario del localStorage
+  user: JSON.parse(localStorage.getItem("user") || "null"),
 });
 
 export const auth = {
   state,
   
-  // ⭐ CAMBIO 3: Inicializar auth al cargar la app
+  // Inicializar auth al cargar la app
   async init() {
     if (state.token) {
       try {
         const { user } = await api.me(state.token);
         state.user = user;
-        localStorage.setItem("user", JSON.stringify(user)); // Guardar en localStorage
+        localStorage.setItem("user", JSON.stringify(user));
       } catch {
+        // Si falla, limpiar todo
         auth.logout();
       }
     }
@@ -40,7 +41,7 @@ export const auth = {
     state.token = res.token;
     state.user = res.user;
     localStorage.setItem("token", res.token);
-    localStorage.setItem("user", JSON.stringify(res.user)); // ⭐ CAMBIO 4: Guardar usuario
+    localStorage.setItem("user", JSON.stringify(res.user));
     return res.user;
   },
   
@@ -49,11 +50,11 @@ export const auth = {
     state.token = res.token;
     state.user = res.user;
     localStorage.setItem("token", res.token);
-    localStorage.setItem("user", JSON.stringify(res.user)); // ⭐ CAMBIO 5: Guardar usuario
+    localStorage.setItem("user", JSON.stringify(res.user));
     return res.user;
   },
   
-  // ⭐ CAMBIO 6: Método para actualizar el usuario (cuando se actualiza el perfil)
+  // Método para actualizar el usuario (cuando se actualiza el perfil)
   updateUser(userData: Partial<User>) {
     if (state.user) {
       state.user = { ...state.user, ...userData };
@@ -61,10 +62,21 @@ export const auth = {
     }
   },
   
+  // ⭐ LOGOUT CORREGIDO - Limpia COMPLETAMENTE la sesión
   logout() {
+    // Limpiar el estado reactivo
     state.token = null;
     state.user = null;
+    
+    // Limpiar localStorage
     localStorage.removeItem("token");
-    localStorage.removeItem("user"); // ⭐ CAMBIO 7: Limpiar usuario del localStorage
+    localStorage.removeItem("user");
+    
+    // ⭐ EXTRA: Limpiar TODA la memoria de sesión
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Forzar limpieza del estado reactivo
+    Object.assign(state, { token: null, user: null });
   },
 };
