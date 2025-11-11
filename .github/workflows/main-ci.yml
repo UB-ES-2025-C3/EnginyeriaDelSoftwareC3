@@ -5,9 +5,14 @@ name: Main CI
 # Disparadores: se ejecuta en push y pull requests a las ramas especificadas
 on:
   push:
-    branches: [ main, CI-implementation ]
+    branches:
+      - develop
+      - pre_deploy
+      - deploy
   pull_request:
-    branches: [ main ]
+    branches:
+      - pre_deploy
+      - deploy
 
 jobs:
   # Job para verificar el código del frontend
