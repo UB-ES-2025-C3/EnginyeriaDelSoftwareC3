@@ -13,6 +13,7 @@ import gameRoutes from './routes/game.routes.js';
 
 const app = express();
 app.set('trust proxy', 1);
+export { app };
 
 app.use(helmet());
 app.use(cors({ origin: env.corsOrigin, credentials: true }));
@@ -29,22 +30,7 @@ const uploadsPath = path.join(process.cwd(), 'uploads');
 
 app.use(
   '/uploads',
-  cors({ origin: env.corsOrigin }), 
+  cors({ origin: env.corsOrigin }),
   helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }),
   express.static(uploadsPath)
 );
-
-app.use(helmet()); 
-app.use(cors({ origin: env.corsOrigin, credentials: true }));
-
-connectDB()
-  .then(() => {
-    app.listen(env.port, () => {
-      console.log(`🚀 API escuchando en http://localhost:${env.port}`);
-    });
-  })
-  .catch((e) => {
-    console.error('❌ Error conectando a MongoDB', e);
-    process.exit(1);
-  });
-  
