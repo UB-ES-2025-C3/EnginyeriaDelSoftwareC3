@@ -16,7 +16,27 @@ app.set('trust proxy', 1);
 export { app };
 
 app.use(helmet());
-app.use(cors({ origin: env.corsOrigin, credentials: true }));
+
+
+// Frontends que tenen permís
+const allowedOrigins = [
+  'https://calm-forest-0e7ca3203.3.azurestaticapps.net', 
+  'https://witty-bay-0f8f41603.3.azurestaticapps.net', 
+  env.corsOrigin                                    
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      // Si no és a la llista, rebutja-la
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 
 app.use('/api/auth', rateLimit({ windowMs: 60_000, max: 20 }));
