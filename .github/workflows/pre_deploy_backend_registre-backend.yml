@@ -1,0 +1,57 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy Node.js app to Azure Web App - registre-backend
+
+on:
+  push:
+    branches:
+      - pre_deploy_backend   # rama donde haces push del backend
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend  # directorio del backend
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (optional)
+        run: npm run build --if-present
+
+      - name: Test (optional)
+        run: npm test --if-present
+
+      - name: Archive app
+        run: zip -r ../backend.zip .
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_21B4D4B0ACEE4977A3C6D485136331B1 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_7B5EB4F1FF044DFFB6C157F1CE4C3A5F }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A6BC006E20484AFCBBB127E781CFC65B }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: registre-backend     # nombre AppService
+          slot-name: Production
+          package: backend.zip

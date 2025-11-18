@@ -1,6 +1,18 @@
 export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
-// Tipus de dades
+// ⭐ CAMBIO 1: User completo con avatarUrl, bio, etc.
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl?: string;
+  bannerUrl?: string;
+  bio?: string;
+  links?: {
+    [key: string]: string;
+  };
+};
+
 type UserProfile = {
   _id: string;
   name: string;
@@ -26,6 +38,21 @@ type MediaResponse = {
   bannerUrl?: string;
 };
 
+export type Review = {
+  stars: number;
+  text: string;
+};
+
+export type Game = {
+  _id: string;
+  name: string;
+  genre: string;
+  year: number;
+  platform: string;
+  image: string;
+  reviews: Review[];
+};
+
 async function http<T>(path: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { "Content-Type": "application/json", ...(opts?.headers || {}) },
@@ -36,29 +63,32 @@ async function http<T>(path: string, opts?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  // ⭐ CAMBIO 2: register y login ahora retornan User completo
   register: (payload: { name: string; email: string; password: string }) =>
-    http<{ token: string; user: { id: string; name: string; email: string } }>(
+    http<{ token: string; user: User }>( // Cambiado el tipo de retorno
       "/api/auth/register",
       { method: "POST", body: JSON.stringify(payload) }
     ),
+    
   login: (payload: { email: string; password: string }) =>
-    http<{ token: string; user: { id: string; name: string; email: string } }>(
+    http<{ token: string; user: User }>( // Cambiado el tipo de retorno
       "/api/auth/login",
       { method: "POST", body: JSON.stringify(payload) }
     ),
+    
+  // ⭐ CAMBIO 3: /me ahora retorna User completo
   me: (token: string) =>
-    http<{ user: { id: string; name: string; email: string } }>("/api/auth/me", {
+    http<{ user: User }>("/api/auth/me", { // Cambiado el tipo de retorno
       headers: { Authorization: `Bearer ${token}` },
     }),
 
-
-  // Obté el perfil complet de l'usuari autenticat
+  // Obtenir el perfil complet de l'usuari autenticat
   getProfile: (token: string) =>
     http<UserProfile>("/api/profile/me", {
       headers: { Authorization: `Bearer ${token}` },
     }),
 
-  // Actualitza el perfil de l'usuari autenticat
+  // Actualitzar el perfil de l'usuari autenticat
   updateProfile: (token: string, payload: UpdateProfilePayload) =>
     http<UserProfile>("/api/profile/me", {
       method: "PUT",
@@ -81,4 +111,8 @@ export const api = {
       }
       return res.json() as Promise<MediaResponse>;
     }),
+
+  // Jocs
+  getGames: () => http<Game[]>("/api/games"),
+  getGame:  (id: string) => http<Game>(`/api/games/${id}`),
 };

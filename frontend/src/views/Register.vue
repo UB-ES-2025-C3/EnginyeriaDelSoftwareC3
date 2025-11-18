@@ -31,7 +31,7 @@
           <span class="text-sm font-semibold text-gray-300 uppercase tracking-wide">Email</span>
           <input
             v-model="email"
-            type="email"
+            type="text"
             placeholder="tucorreo@mail.com"
             required
             class="w-full px-4 py-3 bg-transparent border-2 border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-all"
@@ -73,9 +73,10 @@
         </p>
 
         <!-- Success Message -->
-        <p v-if="ok" class="text-green-400 text-sm text-center bg-green-900/20 border border-green-800 rounded-lg px-4 py-3">
-          Registre correcte!
-        </p>
+      <p v-if="ok" class="text-green-400 text-sm text-center bg-green-900/20 border border-green-800 rounded-lg px-4 py-3">
+        Registre correcte!
+        <button type="button" @click="$router.push('/Cataleg')" class="text-white underline ml-2 cursor-pointer">Entrar al Catàleg</button>
+      </p>
 
         <!-- Login Link -->
         <p class="text-center text-gray-400 text-sm">
@@ -91,7 +92,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { auth } from '@/services/auth';
+
+const router = useRouter();
 
 const name = ref('');
 const email = ref('');
@@ -102,15 +106,50 @@ const loading = ref(false);
 const error = ref<string | null>(null);
 const ok = ref(false);
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 async function submit() {
   error.value = null;
   ok.value = false;
   loading.value = true;
+
+  if (!emailRegex.test(email.value)) {
+    error.value = 'El correu electrònic no és vàlid.';
+    loading.value = false;
+    return;
+  }
+
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/;
+  if (!passwordRegex.test(password.value)) {
+    error.value = 'La contrasenya ha de tenir almenys 8 caràcters, una majúscula, una minúscula i un número.';
+    loading.value = false;
+    return;
+  }
+
   try {
-    await auth.register({ name: name.value, email: email.value, password: password.value });
-    ok.value = true;
+      await auth.register({ name: name.value, email: email.value, password: password.value });
+
+      // Si register no et logeja, crida login
+      if (typeof auth.login === 'function') {
+        await auth.login({ email: email.value, password: password.value });
+      }
+
+      ok.value = true;
+      router.push('/Cataleg');
   } catch (e: any) {
-    error.value = e?.error || 'Error registrant';
+    switch (e?.code) {
+      case 'auth/invalid-email':
+        error.value = 'El correu electrònic no és vàlid.';
+        break;
+      case 'auth/email-already-in-use':
+        error.value = 'Aquest correu ja està registrat.';
+        break;
+      case 'auth/weak-password':
+        error.value = 'La contrasenya és massa dèbil.';
+        break;
+      default:
+        error.value = e?.message || 'Aquest correu ja està registrat.';
+    }
   } finally {
     loading.value = false;
   }

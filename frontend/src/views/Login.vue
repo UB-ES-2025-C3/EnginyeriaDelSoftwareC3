@@ -91,7 +91,7 @@ async function submit() {
   loading.value = true;
   try {
     await auth.login({ email: email.value, password: password.value });
-    router.push('/perfil');
+    router.push('/cataleg');
   } catch (e: any) {
     error.value = e?.error || 'Error iniciant sessió';
   } finally {
