@@ -143,49 +143,13 @@
         </form>
       </div>
     </section>
-
-    <!-- Footer -->
-    <footer class="bg-gray-900 border-t border-gray-800 mt-20">
-      <div class="max-w-7xl mx-auto px-4 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <h3 class="font-bold text-lg mb-4">CheckPoint</h3>
-            <p class="text-gray-400 text-sm">La teva plataforma de confiança per descobrir, valorar i compartir els teus jocs favorits.</p>
-          </div>
-          <div>
-            <h4 class="font-semibold mb-4">Explorar</h4>
-            <ul class="space-y-2 text-sm">
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Catàleg</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Novetats</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="font-semibold mb-4">Comunitat</h4>
-            <ul class="space-y-2 text-sm">
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Foros</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Ressenyes</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="font-semibold mb-4">Suport</h4>
-            <ul class="space-y-2 text-sm">
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Centre d'ajuda</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contacte</a></li>
-            </ul>
-          </div>
-        </div>
-        <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-          <p>&copy; 2025 CheckPoint. Tots els drets reservats.</p>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
-import { api } from '@/services/api'; 
+import { api } from '@/services/api';
 import { auth } from '@/services/auth';
 
 const router = useRouter();
@@ -235,22 +199,22 @@ const handleLogout = () => {
 // ⭐ TIPADO CORRECTO
 const handleClickOutside = (event: MouseEvent) => {
   const target = event.target as Node
-  if (menuRef.value && !menuRef.value.contains(target)) { 
-    showMenu.value = false 
+  if (menuRef.value && !menuRef.value.contains(target)) {
+    showMenu.value = false
   }
 }
 
-onMounted(async () => { 
-  if (!auth.state.token) return; 
-  loading.value = true; 
-  try { 
-    const userData = await api.getProfile(auth.state.token); 
-    originalData.value = JSON.parse(JSON.stringify(userData)); 
-    resetForm(); 
-  } catch (e) { 
-    error.value = 'No s\'ha pogut carregar el teu perfil'; 
-  } finally { 
-    loading.value = false; 
+onMounted(async () => {
+  if (!auth.state.token) return;
+  loading.value = true;
+  try {
+    const userData = await api.getProfile(auth.state.token);
+    originalData.value = JSON.parse(JSON.stringify(userData));
+    resetForm();
+  } catch (e) {
+    error.value = 'No s\'ha pogut carregar el teu perfil';
+  } finally {
+    loading.value = false;
   }
   document.addEventListener('click', handleClickOutside);
 });
@@ -285,10 +249,10 @@ async function handleSave() {
     if (avatarUrl) payload.avatarUrl = avatarUrl;
     if (bannerUrl) payload.bannerUrl = bannerUrl;
     const updated = await api.updateProfile(auth.state.token, payload);
-    
+
     // Actualizar el estado global
     auth.updateUser({ name: updated.name, bio: updated.bio, avatarUrl: updated.avatarUrl, bannerUrl: updated.bannerUrl, links: updated.links });
-    
+
     originalData.value = JSON.parse(JSON.stringify(updated)); success.value = true;
     avatarFile.value = null; bannerFile.value = null;
     if (avatarInput.value) avatarInput.value.value = ''; if (bannerInput.value) bannerInput.value.value = '';

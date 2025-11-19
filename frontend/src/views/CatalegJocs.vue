@@ -12,7 +12,7 @@
               </div>
               <span class="font-bold text-xl hidden sm:block">CheckPoint</span>
             </router-link>
-            
+
             <nav class="hidden lg:flex items-center gap-6">
               <button class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
                 <span class="text-sm">👥</span> Comunitat
@@ -124,46 +124,8 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 border-t border-gray-800 mt-20">
-      <div class="max-w-7xl mx-auto px-4 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <h3 class="font-bold text-lg mb-4">CheckPoint</h3>
-            <p class="text-gray-400 text-sm">La teva plataforma de confiança per descobrir, valorar i compartir els teus jocs favorits.</p>
-          </div>
-          <div>
-            <h4 class="font-semibold mb-4">Explorar</h4>
-            <ul class="space-y-2 text-sm">
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Catàleg</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Novetats</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Més valorats</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Pròxims llançaments</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="font-semibold mb-4">Comunitat</h4>
-            <ul class="space-y-2 text-sm">
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Foros</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Reviews</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Esdeveniments</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Discord</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="font-semibold mb-4">Suport</h4>
-            <ul class="space-y-2 text-sm">
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Centre d'ajuda</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contacte</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Política de privacitat</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Termes d'ús</a></li>
-            </ul>
-          </div>
-        </div>
-        <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-          <p>&copy; 2025 CheckPoint. Tots els drets reservats.</p>
-        </div>
-      </div>
-    </footer>
+    <FooterComponent />
+
   </div>
 </template>
 
@@ -173,6 +135,7 @@ import { useRouter } from 'vue-router'
 import GameCardMini from '@/views/GameCardMini.vue'
 import { api } from '@/services/api'
 import { auth } from '@/services/auth'
+import FooterComponent from "@/components/FooterComponent.vue";
 
 const router = useRouter()
 
@@ -199,7 +162,7 @@ const menuRef = ref(null)
 const filteredGames = computed(() => {
   if (!searchQuery.value) return []
   const query = searchQuery.value.toLowerCase()
-  return games.value.filter(game => 
+  return games.value.filter(game =>
     game.name.toLowerCase().includes(query) ||
     game.genre.toLowerCase().includes(query) ||
     game.platform.toLowerCase().includes(query)
