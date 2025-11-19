@@ -38,8 +38,8 @@
             Comunitat
           </h4>
           <ul class="space-y-2 text-sm">
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Foros</a></li>
             <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Ressenyes</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Discord</a></li>
           </ul>
         </div>
 
