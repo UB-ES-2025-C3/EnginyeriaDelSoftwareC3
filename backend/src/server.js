@@ -22,6 +22,7 @@ app.use(helmet());
 const allowedOrigins = [
   'https://calm-forest-0e7ca3203.3.azurestaticapps.net', 
   'https://witty-bay-0f8f41603.3.azurestaticapps.net', 
+  'http://localhost:5173',
   env.corsOrigin                                    
 ];
 
