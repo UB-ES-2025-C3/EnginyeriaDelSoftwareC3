@@ -533,7 +533,11 @@ const removeFilter = (filter: ActiveFilter) => {
 
 const clearFilters = () => {
   const hasChanges =
-    selectedGenres.value.length || selectedPlatforms.value.length || selectedSort.value !== 'best'
+    !!searchQuery.value ||
+    selectedGenres.value.length > 0 ||
+    selectedPlatforms.value.length > 0 ||
+    selectedSort.value !== 'best'
+  searchQuery.value = ''
   selectedGenres.value = []
   selectedPlatforms.value = []
   selectedSort.value = 'best'
