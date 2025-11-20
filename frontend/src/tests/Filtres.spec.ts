@@ -1,0 +1,303 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { mount, flushPromises } from '@vue/test-utils';
+import CatalegJocs from '../views/CatalegJocs.vue';
+import { createRouter, createWebHistory } from 'vue-router';
+import { api, PaginatedGamesResponse, GameSummary } from '@/services/api';
+import { auth } from '@/services/auth';
+
+// Mock de los servicios
+vi.mock('@/services/api');
+vi.mock('@/services/auth');
+
+// Creamos un router de prueba
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/', name: 'home', component: { template: '<div></div>' } },
+    { path: '/cataleg', name: 'cataleg', component: { template: '<div></div>' } },
+    { path: '/perfil', name: 'perfil', component: { template: '<div></div>' } },
+    { path: '/login', name: 'login', component: { template: '<div></div>' } },
+    { path: '/game/:id', name: 'game', component: { template: '<div></div>' } },
+  ],
+});
+
+// Datos de prueba
+const mockGames: GameSummary[] = [
+  { _id: '1', name: 'The Witcher 3', genre: 'RPG', year: 2015, platform: 'PC', image: 'tw3.jpg', averageRating: 4.8, reviewCount: 120 },
+  { _id: '2', name: 'Red Dead Redemption 2', genre: 'Action', year: 2018, platform: 'PS4', image: 'rdr2.jpg', averageRating: 4.9, reviewCount: 200 },
+];
+
+const createResponse = (overrides?: Partial<PaginatedGamesResponse>): PaginatedGamesResponse => ({
+  items: mockGames,
+  page: 1,
+  pageSize: 12,
+  totalItems: mockGames.length,
+  totalPages: 1,
+  availableGenres: ['RPG', 'Action', 'Adventure'],
+  availablePlatforms: ['PC', 'PS4', 'Xbox One'],
+  ...overrides,
+});
+
+describe('CatalegJocs.vue - Filter Functionality', () => {
+  beforeEach(async () => {
+    vi.resetAllMocks();
+    auth.state = { token: null, user: null };
+    vi.mocked(api.getGames).mockResolvedValue(createResponse());
+    // Reset router to a known state before each test
+    await router.push('/cataleg');
+    await router.isReady();
+  });
+
+  it('should initialize with default filters if no query parameters are present', async () => {
+    const wrapper = mount(CatalegJocs, {
+      global: {
+        plugins: [router],
+      },
+    });
+    await flushPromises();
+
+    expect(wrapper.vm.searchQuery).toBe('');
+    expect(wrapper.vm.selectedGenres).toEqual([]);
+    expect(wrapper.vm.selectedPlatforms).toEqual([]);
+    expect(wrapper.vm.selectedSort).toBe('best');
+    expect(api.getGames).toHaveBeenCalledWith({
+      sort: 'best',
+      genres: [],
+      platforms: [],
+    });
+  });
+
+  it('should initialize filters from URL query parameters', async () => {
+    await router.push('/cataleg?q=test&genres=RPG,Action&platforms=PC&sort=year');
+    const wrapper = mount(CatalegJocs, {
+      global: {
+        plugins: [router],
+      },
+    });
+    await flushPromises();
+
+    expect(wrapper.vm.searchQuery).toBe('test');
+    expect(wrapper.vm.selectedGenres).toEqual(['RPG', 'Action']);
+    expect(wrapper.vm.selectedPlatforms).toEqual(['PC']);
+    expect(wrapper.vm.selectedSort).toBe('year');
+    expect(api.getGames).toHaveBeenCalledWith({
+      q: 'test',
+      sort: 'year',
+      genres: ['RPG', 'Action'],
+      platforms: ['PC'],
+    });
+  });
+
+  it('should open and close the filter panel', async () => {
+    const wrapper = mount(CatalegJocs, {
+      global: {
+        plugins: [router],
+      },
+    });
+    await flushPromises();
+
+    const filterButton = wrapper.find('button[aria-label="Obrir filtres"]');
+    expect(filterButton.exists()).toBe(true);
+    expect(wrapper.vm.filterPanelOpen).toBe(false);
+
+    await filterButton.trigger('click');
+    expect(wrapper.vm.filterPanelOpen).toBe(true);
+    expect(wrapper.find('.max-w-md.bg-gray-900').exists()).toBe(true); // Check for filter panel presence
+
+    const closeButton = wrapper.find('button[aria-label="Tancar filtres"]');
+    expect(closeButton.exists()).toBe(true);
+    await closeButton.trigger('click');
+    expect(wrapper.vm.filterPanelOpen).toBe(false);
+    expect(wrapper.find('.max-w-md.bg-gray-900').exists()).toBe(false); // Check for filter panel absence
+  });
+
+  it('should update searchQuery and trigger search suggestions on input', async () => {
+    vi.useFakeTimers(); // Use fake timers for debounce testing
+    const wrapper = mount(CatalegJocs, {
+      global: {
+        plugins: [router],
+      },
+    });
+    await flushPromises();
+
+    const searchInput = wrapper.find('input[type="text"][placeholder="Buscar jocs..."]');
+    expect(searchInput.exists()).toBe(true);
+
+    await searchInput.setValue('witcher');
+    expect(wrapper.vm.searchQuery).toBe('witcher');
+    expect(api.getGames).not.toHaveBeenCalledWith(expect.objectContaining({ q: 'witcher' })); // Debounced, not called immediately
+
+    vi.advanceTimersByTime(250); // Advance timer past debounce
+    await flushPromises();
+
+    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ q: 'witcher', limit: 5 }));
+    vi.useRealTimers(); // Restore real timers
+  });
+
+  it('should select and deselect genres and update the URL', async () => {
+    const wrapper = mount(CatalegJocs, {
+      global: {
+        plugins: [router],
+      },
+    });
+    await flushPromises();
+
+    // Open filter panel
+    await wrapper.find('button[aria-label="Obrir filtres"]').trigger('click');
+    await flushPromises();
+
+    const rpgCheckbox = wrapper.find('input[type="checkbox"][value="RPG"]');
+    expect(rpgCheckbox.exists()).toBe(true);
+    expect((rpgCheckbox.element as HTMLInputElement).checked).toBe(false);
+
+    await rpgCheckbox.setValue(true); // Select RPG
+    await flushPromises();
+
+    expect(wrapper.vm.selectedGenres).toEqual(['RPG']);
+    expect(router.currentRoute.value.query.genres).toBe('RPG');
+    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ genres: ['RPG'] }));
+
+    await rpgCheckbox.setValue(false); // Deselect RPG
+    await flushPromises();
+
+    expect(wrapper.vm.selectedGenres).toEqual([]);
+    expect(router.currentRoute.value.query.genres).toBeUndefined();
+    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ genres: [] }));
+  });
+
+  it('should select and deselect platforms and update the URL', async () => {
+    const wrapper = mount(CatalegJocs, {
+      global: {
+        plugins: [router],
+      },
+    });
+    await flushPromises();
+
+    // Open filter panel
+    await wrapper.find('button[aria-label="Obrir filtres"]').trigger('click');
+    await flushPromises();
+
+    const pcCheckbox = wrapper.find('input[type="checkbox"][value="PC"]');
+    expect(pcCheckbox.exists()).toBe(true);
+    expect((pcCheckbox.element as HTMLInputElement).checked).toBe(false);
+
+    await pcCheckbox.setValue(true); // Select PC
+    await flushPromises();
+
+    expect(wrapper.vm.selectedPlatforms).toEqual(['PC']);
+    expect(router.currentRoute.value.query.platforms).toBe('PC');
+    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ platforms: ['PC'] }));
+
+    await pcCheckbox.setValue(false); // Deselect PC
+    await flushPromises();
+
+    expect(wrapper.vm.selectedPlatforms).toEqual([]);
+    expect(router.currentRoute.value.query.platforms).toBeUndefined();
+    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ platforms: [] }));
+  });
+
+  it('should change sort option and update the URL', async () => {
+    const wrapper = mount(CatalegJocs, {
+      global: {
+        plugins: [router],
+      },
+    });
+    await flushPromises();
+
+    // Open filter panel
+    await wrapper.find('button[aria-label="Obrir filtres"]').trigger('click');
+    await flushPromises();
+
+    const sortSelect = wrapper.find('select');
+    expect(sortSelect.exists()).toBe(true);
+
+    await sortSelect.setValue('year'); // Select 'Any de llançament'
+    await flushPromises();
+
+    expect(wrapper.vm.selectedSort).toBe('year');
+    expect(router.currentRoute.value.query.sort).toBe('year');
+    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ sort: 'year' }));
+
+    await sortSelect.setValue('best'); // Select 'Millor valorats primer'
+    await flushPromises();
+
+    expect(wrapper.vm.selectedSort).toBe('best');
+    expect(router.currentRoute.value.query.sort).toBe('best');
+    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ sort: 'best' }));
+  });
+
+  it('should remove an individual active filter chip', async () => {
+    await router.push('/cataleg?q=test&genres=RPG&platforms=PC');
+    const wrapper = mount(CatalegJocs, {
+      global: {
+        plugins: [router],
+      },
+    });
+    await flushPromises();
+
+    expect(wrapper.vm.activeFilters.length).toBe(3); // Search, Genre, Platform
+
+    // Remove search filter
+    const searchChip = wrapper.find('button.inline-flex.items-center:nth-child(1)'); // First chip is search
+    expect(searchChip.text()).toContain('Cerca: test');
+    await searchChip.trigger('click');
+    await flushPromises();
+
+    expect(wrapper.vm.searchQuery).toBe('');
+    expect(router.currentRoute.value.query.q).toBeUndefined();
+    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ q: undefined }));
+
+    // Remove genre filter
+    const genreChip = wrapper.find('button.inline-flex.items-center:nth-child(1)'); // Now first chip is genre
+    expect(genreChip.text()).toContain('Gènere: RPG');
+    await genreChip.trigger('click');
+    await flushPromises();
+
+    expect(wrapper.vm.selectedGenres).toEqual([]);
+    expect(router.currentRoute.value.query.genres).toBeUndefined();
+    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ genres: [] }));
+
+    // Remove platform filter
+    const platformChip = wrapper.find('button.inline-flex.items-center:nth-child(1)'); // Now first chip is platform
+    expect(platformChip.text()).toContain('Plataforma: PC');
+    await platformChip.trigger('click');
+    await flushPromises();
+
+    expect(wrapper.vm.selectedPlatforms).toEqual([]);
+    expect(router.currentRoute.value.query.platforms).toBeUndefined();
+    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ platforms: [] }));
+
+    expect(wrapper.vm.activeFilters.length).toBe(0);
+  });
+
+  it('should clear all filters', async () => {
+    await router.push('/cataleg?q=test&genres=RPG&platforms=PC&sort=year');
+    const wrapper = mount(CatalegJocs, {
+      global: {
+        plugins: [router],
+      },
+    });
+    await flushPromises();
+
+    expect(wrapper.vm.activeFilters.length).toBe(3);
+    expect(wrapper.vm.selectedSort).toBe('year');
+
+    const clearFiltersButton = wrapper.find('button.text-xs.uppercase.tracking-wide');
+    expect(clearFiltersButton.exists()).toBe(true);
+    await clearFiltersButton.trigger('click');
+    await flushPromises();
+
+    expect(wrapper.vm.searchQuery).toBe('');
+    expect(wrapper.vm.selectedGenres).toEqual([]);
+    expect(wrapper.vm.selectedPlatforms).toEqual([]);
+    expect(wrapper.vm.selectedSort).toBe('best');
+    expect(wrapper.vm.activeFilters.length).toBe(0);
+
+    expect(router.currentRoute.value.query).toEqual({ sort: 'best' }); // All query params should be cleared
+    expect(api.getGames).toHaveBeenCalledWith({
+      sort: 'best',
+      genres: [],
+      platforms: [],
+    });
+  });
+});
