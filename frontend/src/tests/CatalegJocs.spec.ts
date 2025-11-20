@@ -3,9 +3,8 @@ import { mount, flushPromises } from '@vue/test-utils';
 import CatalegJocs from '../views/CatalegJocs.vue';
 import GameCardMini from '../views/GameCardMini.vue';
 import { createRouter, createWebHistory } from 'vue-router';
-import { api } from '@/services/api';
+import { api, PaginatedGamesResponse, GameSummary } from '@/services/api';
 import { auth } from '@/services/auth';
-import { Game, Review } from '@/services/api'; // Import Game and Review types
 
 // Mock de los servicios
 vi.mock('@/services/api');
@@ -24,10 +23,21 @@ const router = createRouter({
 });
 
 // Datos de prueba
-const mockGames: Game[] = [ // Typed as Game[]
-  { _id: '1', name: 'The Witcher 3', genre: 'RPG', year: 2015, platform: 'PC', image: 'tw3.jpg', reviews: [] }, // Added reviews
-  { _id: '2', name: 'Red Dead Redemption 2', genre: 'Action', year: 2018, platform: 'PS4', image: 'rdr2.jpg', reviews: [] }, // Added reviews
+const mockGames: GameSummary[] = [
+  { _id: '1', name: 'The Witcher 3', genre: 'RPG', year: 2015, platform: 'PC', image: 'tw3.jpg', averageRating: 4.8, reviewCount: 120 },
+  { _id: '2', name: 'Red Dead Redemption 2', genre: 'Action', year: 2018, platform: 'PS4', image: 'rdr2.jpg', averageRating: 4.9, reviewCount: 200 },
 ];
+
+const createResponse = (overrides?: Partial<PaginatedGamesResponse>): PaginatedGamesResponse => ({
+  items: mockGames,
+  page: 1,
+  pageSize: 12,
+  totalItems: mockGames.length,
+  totalPages: 1,
+  availableGenres: ['RPG', 'Action'],
+  availablePlatforms: ['PC', 'PS4'],
+  ...overrides,
+});
 
 describe('CatalegJocs.vue', () => {
   beforeEach(() => {
@@ -54,7 +64,7 @@ describe('CatalegJocs.vue', () => {
 
     it('debería renderizar una lista de juegos cuando la API devuelve datos', async () => {
       // Mockeamos la API para que devuelva nuestros juegos de prueba
-      vi.mocked(api.getGames).mockResolvedValue(mockGames);
+      vi.mocked(api.getGames).mockResolvedValue(createResponse());
 
       const wrapper = mount(CatalegJocs, {
         global: {
@@ -75,12 +85,13 @@ describe('CatalegJocs.vue', () => {
       // Comprobamos que las props se pasan correctamente al primer GameCardMini
       expect(gameCards[0].props('name')).toBe('The Witcher 3');
       expect(gameCards[0].props('genre')).toBe('RPG');
+      expect(gameCards[0].props('reviewCount')).toBe(120);
     });
   });
 
   describe('Estados Especiales', () => {
     it('debería mostrar un mensaje de "No s\'han trobat jocs" si la API devuelve una lista vacía', async () => {
-      vi.mocked(api.getGames).mockResolvedValue([]); // API devuelve array vacío
+      vi.mocked(api.getGames).mockResolvedValue(createResponse({ items: [], totalItems: 0, totalPages: 0 }));
 
       const wrapper = mount(CatalegJocs, {
         global: {
@@ -97,7 +108,7 @@ describe('CatalegJocs.vue', () => {
     it('debería registrar un error en la consola si la llamada a la API falla', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {}); // Espiamos console.error
       const errorMessage = 'Error al cargar los juegos';
-      vi.mocked(api.getGames).mockRejectedValue(new Error(errorMessage)); // API falla
+      vi.mocked(api.getGames).mockRejectedValue(new Error(errorMessage));
 
       mount(CatalegJocs, {
         global: {
