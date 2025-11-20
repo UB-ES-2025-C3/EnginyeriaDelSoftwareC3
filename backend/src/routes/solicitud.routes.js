@@ -1,58 +1,78 @@
 // routes/solicitud.routes.js
 import express from 'express';
 import { Solicitud } from '../models/Solicitud.js';
+import { uploadSolicitud, validateFileSize } from '../config/multer.config.js';
 
 const router = express.Router();
 
-// POST - Crear nueva solicitud
-router.post('/solicitudes', async (req, res) => {
-  try {
-    const { nombre, email, tipo, asunto, mensaje } = req.body;
+// POST - Crear nueva solicitud con archivos
+router.post('/solicitudes', 
+  uploadSolicitud.array('archivos', 5), // Máximo 5 archivos
+  validateFileSize,
+  async (req, res) => {
+    try {
+      const { nombre, email, tipo, asunto, mensaje } = req.body;
 
-    // Validación básica
-    if (!nombre || !email || !tipo || !asunto || !mensaje) {
-      return res.status(400).json({
+      // Validación básica
+      if (!nombre || !email || !tipo || !asunto || !mensaje) {
+        return res.status(400).json({
+          success: false,
+          message: 'Tots els camps són obligatoris'
+        });
+      }
+
+      // Procesar archivos subidos
+      const archivos = [];
+      if (req.files && req.files.length > 0) {
+        for (const file of req.files) {
+          const isImage = file.mimetype.startsWith('image/');
+          archivos.push({
+            url: `/uploads/solicitudes/${file.filename}`,
+            tipo: isImage ? 'imagen' : 'video',
+            nombre: file.originalname,
+            tamaño: file.size
+          });
+        }
+      }
+
+      // Crear nueva solicitud
+      const nuevaSolicitud = new Solicitud({
+        nombre: nombre.trim(),
+        email: email.trim().toLowerCase(),
+        tipo,
+        asunto: asunto.trim(),
+        mensaje: mensaje.trim(),
+        archivos
+      });
+
+      // Guardar en la base de datos
+      await nuevaSolicitud.save();
+
+      res.status(201).json({
+        success: true,
+        message: 'Solicitud creada correctament',
+        data: nuevaSolicitud
+      });
+
+    } catch (error) {
+      console.error('Error al crear solicitud:', error);
+      
+      // Error de validación de Mongoose
+      if (error.name === 'ValidationError') {
+        return res.status(400).json({
+          success: false,
+          message: 'Error de validació',
+          errors: error.errors
+        });
+      }
+
+      res.status(500).json({
         success: false,
-        message: 'Tots els camps són obligatoris'
+        message: 'Error del servidor al crear la solicitud'
       });
     }
-
-    // Crear nueva solicitud
-    const nuevaSolicitud = new Solicitud({
-      nombre: nombre.trim(),
-      email: email.trim().toLowerCase(),
-      tipo,
-      asunto: asunto.trim(),
-      mensaje: mensaje.trim()
-    });
-
-    // Guardar en la base de datos
-    await nuevaSolicitud.save();
-
-    res.status(201).json({
-      success: true,
-      message: 'Solicitud creada correctament',
-      data: nuevaSolicitud
-    });
-
-  } catch (error) {
-    console.error('Error al crear solicitud:', error);
-    
-    // Error de validación de Mongoose
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({
-        success: false,
-        message: 'Error de validació',
-        errors: error.errors
-      });
-    }
-
-    res.status(500).json({
-      success: false,
-      message: 'Error del servidor al crear la solicitud'
-    });
   }
-});
+);
 
 // GET - Obtener todas las solicitudes (opcional, para admin)
 router.get('/solicitudes', async (req, res) => {

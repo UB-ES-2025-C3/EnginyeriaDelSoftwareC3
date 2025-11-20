@@ -6,6 +6,15 @@ const solicitudSchema = new mongoose.Schema({
   tipo:      { type: String, required: true, enum: ['queja', 'mejora', 'comentario'], default: 'comentario' },
   asunto:    { type: String, required: true, trim: true, minlength: 5, maxlength: 150 },
   mensaje:   { type: String, required: true, trim: true, minlength: 10, maxlength: 1000 },
+  
+  // ⭐ NUEVO: Archivos adjuntos
+  archivos:  [{ 
+    url: { type: String, required: true },
+    tipo: { type: String, enum: ['imagen', 'video'], required: true },
+    nombre: { type: String, required: true },
+    tamaño: { type: Number, required: true } // en bytes
+  }],
+  
   fecha:     { type: Date, default: Date.now },
   leido:     { type: Boolean, default: false }
 }, { 
@@ -13,7 +22,7 @@ const solicitudSchema = new mongoose.Schema({
   timestamps: true 
 });
 
-// Índice para búsquedas más eficientes
+// Índices para búsquedas más eficientes
 solicitudSchema.index({ fecha: -1 });
 solicitudSchema.index({ email: 1 });
 

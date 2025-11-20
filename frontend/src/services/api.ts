@@ -135,6 +135,19 @@ export const api = {
       body: JSON.stringify(payload),
     }),
 
+  // ⭐ NUEVO: Crear solicitud con archivos (FormData)
+  createSolicitudWithFiles: async (formData: FormData) => {
+    const res = await fetch(`${API_BASE}/api/solicitudes`, {
+      method: 'POST',
+      body: formData, // No incluir Content-Type, el navegador lo establece automáticamente con boundary
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ error: res.statusText }));
+      throw error;
+    }
+    return res.json() as Promise<{ success: boolean; message: string; data: Solicitud }>;
+  },
+
   // Métodos opcionales para admin (si quieres ver las solicitudes)
   getSolicitudes: (token?: string) =>
     http<{ success: boolean; count: number; data: Solicitud[] }>("/api/solicitudes", {

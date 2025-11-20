@@ -211,6 +211,84 @@
             </div>
           </div>
 
+          <!-- ⭐ NUEVO: Archivos adjuntos -->
+          <div>
+            <label class="block text-sm font-semibold mb-2 text-gray-300">
+              Adjuntar arxius (opcional)
+            </label>
+            <div class="space-y-3">
+              <!-- Botón para seleccionar archivos -->
+              <div class="flex items-center gap-3">
+                <button
+                  type="button"
+                  @click="triggerFileInput"
+                  class="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
+                  :disabled="formData.archivos.length >= 5"
+                >
+                  <span class="text-xl">📎</span>
+                  <span class="text-sm">Afegir arxius</span>
+                </button>
+                <p class="text-xs text-gray-500">
+                  Max 5 arxius • Imatges fins a 5 MB • Vídeos fins a 20 MB
+                </p>
+              </div>
+
+              <!-- Input oculto -->
+              <input
+                ref="fileInput"
+                type="file"
+                multiple
+                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime"
+                @change="handleFileChange"
+                class="hidden"
+              />
+
+              <!-- Errores de archivos -->
+              <div v-if="fileErrors.length > 0" class="space-y-1">
+                <p v-for="(error, index) in fileErrors" :key="index" class="text-red-400 text-xs flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span>{{ error }}</span>
+                </p>
+              </div>
+
+              <!-- Lista de archivos seleccionados -->
+              <div v-if="formData.archivos.length > 0" class="space-y-2">
+                <div
+                  v-for="(file, index) in formData.archivos"
+                  :key="index"
+                  class="flex items-center gap-3 bg-gray-800/50 border border-gray-700 rounded-lg p-3"
+                >
+                  <!-- Preview -->
+                  <div class="flex-shrink-0 w-12 h-12 bg-gray-700 rounded flex items-center justify-center overflow-hidden">
+                    <img
+                      v-if="file.type.startsWith('image/')"
+                      :src="getFilePreview(file)"
+                      :alt="file.name"
+                      class="w-full h-full object-cover"
+                    />
+                    <span v-else class="text-2xl">🎬</span>
+                  </div>
+
+                  <!-- Info del archivo -->
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-white truncate">{{ file.name }}</p>
+                    <p class="text-xs text-gray-400">{{ formatFileSize(file.size) }}</p>
+                  </div>
+
+                  <!-- Botón eliminar -->
+                  <button
+                    type="button"
+                    @click="removeFile(index)"
+                    class="flex-shrink-0 w-8 h-8 rounded-full bg-red-500/20 hover:bg-red-500/30 flex items-center justify-center transition-colors"
+                    title="Eliminar arxiu"
+                  >
+                    <span class="text-red-400">✕</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Botón de envío -->
           <div class="pt-4">
             <button
@@ -275,6 +353,7 @@ interface FormData {
   tipo: 'queja' | 'mejora' | 'comentario'
   asunto: string
   mensaje: string
+  archivos: File[]
 }
 
 interface FormErrors {
@@ -308,7 +387,8 @@ const formData = ref<FormData>({
   email: '',
   tipo: 'comentario',
   asunto: '',
-  mensaje: ''
+  mensaje: '',
+  archivos: []
 })
 
 const errors = ref<FormErrors>({})
@@ -316,6 +396,10 @@ const isSubmitting = ref(false)
 const showSuccess = ref(false)
 const showError = ref(false)
 const errorMessage = ref('')
+
+// Estados para archivos
+const fileInput = ref<HTMLInputElement | null>(null)
+const fileErrors = ref<string[]>([])
 
 const router = useRouter()
 
@@ -348,6 +432,79 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
+// ⭐ NUEVAS FUNCIONES PARA MANEJAR ARCHIVOS
+
+const triggerFileInput = () => {
+  fileInput.value?.click()
+}
+
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const files = target.files
+  
+  if (!files || files.length === 0) return
+
+  fileErrors.value = []
+  
+  // Validar número de archivos
+  const totalFiles = formData.value.archivos.length + files.length
+  if (totalFiles > 5) {
+    fileErrors.value.push(`Només pots pujar un màxim de 5 arxius. Actualment tens ${formData.value.archivos.length}.`)
+    return
+  }
+
+  // Validar cada archivo
+  const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5 MB
+  const MAX_VIDEO_SIZE = 20 * 1024 * 1024 // 20 MB
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    
+    // Validar tipo
+    const isImage = file.type.startsWith('image/')
+    const isVideo = file.type.startsWith('video/')
+    
+    if (!isImage && !isVideo) {
+      fileErrors.value.push(`"${file.name}" no és un tipus d'arxiu vàlid.`)
+      continue
+    }
+
+    // Validar tamaño
+    if (isImage && file.size > MAX_IMAGE_SIZE) {
+      fileErrors.value.push(`La imatge "${file.name}" supera els 5 MB.`)
+      continue
+    }
+
+    if (isVideo && file.size > MAX_VIDEO_SIZE) {
+      fileErrors.value.push(`El vídeo "${file.name}" supera els 20 MB.`)
+      continue
+    }
+
+    // Añadir archivo válido
+    formData.value.archivos.push(file)
+  }
+
+  // Limpiar input
+  if (target) target.value = ''
+}
+
+const removeFile = (index: number) => {
+  formData.value.archivos.splice(index, 1)
+  fileErrors.value = []
+}
+
+const getFilePreview = (file: File): string => {
+  return URL.createObjectURL(file)
+}
+
+const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return '0 Bytes'
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
+}
+
 // Validación del formulario
 const validateForm = (): boolean => {
   errors.value = {}
@@ -372,7 +529,7 @@ const validateForm = (): boolean => {
   return Object.keys(errors.value).length === 0
 }
 
-// Envío del formulario
+// Envío del formulario con archivos
 const handleSubmit = async () => {
   if (!validateForm()) {
     return
@@ -383,8 +540,21 @@ const handleSubmit = async () => {
   showError.value = false
   
   try {
-    // Llamada a la API para guardar la solicitud
-    await api.createSolicitud(formData.value)
+    // Crear FormData para enviar archivos
+    const submitData = new FormData()
+    submitData.append('nombre', formData.value.nombre)
+    submitData.append('email', formData.value.email)
+    submitData.append('tipo', formData.value.tipo)
+    submitData.append('asunto', formData.value.asunto)
+    submitData.append('mensaje', formData.value.mensaje)
+    
+    // Añadir archivos
+    formData.value.archivos.forEach((file) => {
+      submitData.append('archivos', file)
+    })
+    
+    // Llamada a la API
+    await api.createSolicitudWithFiles(submitData)
     
     // Mostrar mensaje de éxito
     showSuccess.value = true
@@ -395,8 +565,10 @@ const handleSubmit = async () => {
       email: '',
       tipo: 'comentario',
       asunto: '',
-      mensaje: ''
+      mensaje: '',
+      archivos: []
     }
+    fileErrors.value = []
     
     // Scroll al inicio
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -406,10 +578,10 @@ const handleSubmit = async () => {
       showSuccess.value = false
     }, 5000)
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al enviar solicitud:', error)
     showError.value = true
-    errorMessage.value = 'No s\'ha pogut enviar el missatge. Si us plau, intenta-ho de nou.'
+    errorMessage.value = error?.message || 'No s\'ha pogut enviar el missatge. Si us plau, intenta-ho de nou.'
     
     // Ocultar mensaje de error después de 5 segundos
     setTimeout(() => {
@@ -434,6 +606,11 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
+  
+  // Limpiar URLs de preview
+  formData.value.archivos.forEach(file => {
+    URL.revokeObjectURL(getFilePreview(file))
+  })
 })
 </script>
 
