@@ -53,8 +53,12 @@
             Suport
           </h4>
           <ul class="space-y-2 text-sm">
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Centre d'ajuda</a></li>
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contacte</a></li>
+            <router-link to="/faqs">
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">FAQS</a></li>
+            </router-link>
+            <router-link to="/contacte">
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contacte</a></li>
+            </router-link>
           </ul>
         </div>
 
