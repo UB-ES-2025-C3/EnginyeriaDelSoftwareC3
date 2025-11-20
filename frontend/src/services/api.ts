@@ -53,6 +53,51 @@ export type Game = {
   reviews: Review[];
 };
 
+export type GameSummary = {
+  _id: string;
+  name: string;
+  genre: string;
+  year: number;
+  platform: string;
+  image: string;
+  averageRating: number;
+  reviewCount: number;
+};
+
+export type PaginatedGamesResponse = {
+  items: GameSummary[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  availableGenres: string[];
+  availablePlatforms: string[];
+};
+
+type GameQueryParams = Partial<{
+  q: string;
+  sort: string;
+  page: number;
+  limit: number;
+  genres: string[];
+  platforms: string[];
+}>;
+
+const buildQueryString = (params?: GameQueryParams) => {
+  if (!params) return '';
+  const query = new URLSearchParams();
+
+  if (params.q) query.set('q', params.q);
+  if (params.sort) query.set('sort', params.sort);
+  if (typeof params.page === 'number') query.set('page', String(params.page));
+  if (typeof params.limit === 'number') query.set('limit', String(params.limit));
+  if (params.genres && params.genres.length) query.set('genres', params.genres.join(','));
+  if (params.platforms && params.platforms.length) query.set('platforms', params.platforms.join(','));
+
+  const qs = query.toString();
+  return qs ? `?${qs}` : '';
+};
+
 async function http<T>(path: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { "Content-Type": "application/json", ...(opts?.headers || {}) },
@@ -113,6 +158,7 @@ export const api = {
     }),
 
   // Jocs
-  getGames: () => http<Game[]>("/api/games"),
+  getGames: (params?: GameQueryParams) =>
+    http<PaginatedGamesResponse>(`/api/games${buildQueryString(params)}`),
   getGame:  (id: string) => http<Game>(`/api/games/${id}`),
 };
