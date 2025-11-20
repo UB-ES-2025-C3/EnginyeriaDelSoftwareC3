@@ -61,8 +61,12 @@
       </div>
 
       <!-- Footer bottom -->
-      <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-        <p>&copy; 2025 CheckPoint. Tots els drets reservats.</p>
+      <div class="border-t border-gray-800 mt-8 pt-8 text-sm text-gray-400 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <p class="text-center md:text-left">&copy; 2025 CheckPoint. Tots els drets reservats.</p>
+        <div class="flex items-center justify-center gap-6 text-center">
+          <a href="#" class="hover:text-white transition-colors">Termes d'ús</a>
+          <router-link to="/privacitat" class="hover:text-white transition-colors">Política de privacitat</router-link>
+        </div>
       </div>
     </div>
   </footer>
