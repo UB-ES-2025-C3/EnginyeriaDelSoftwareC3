@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import mongoose from 'mongoose';
 import { Game } from '../models/Game.js';
+import { Review } from '../models/Review.js'; 
 
 const router = Router();
 
@@ -11,6 +12,27 @@ router.get('/', async (req, res, next) => {
     res.json(games);
   } catch (err) {
     next(err);
+  }
+});
+
+/** GET /api/games/:id/reviews -> reseñas de un juego */
+router.get('/:id/reviews', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const reviews = await Review
+      .find({ game: id })
+      .populate('user', 'name avatarUrl') // datos del usuario
+      .sort({ createdAt: -1 }) // más nuevas primero
+      .lean();
+
+    res.json({
+      gameId: id,
+      reviews,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al obtener las reseñas' });
   }
 });
 
