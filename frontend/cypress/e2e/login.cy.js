@@ -47,11 +47,6 @@ describe('Login page', () => {
       .should('exist')
       .click();
 
-    // Aquí puedes adaptar lo que haga tu app:
-
-    // Si redirige al catálogo:
-    // cy.url().should('include', '/Cataleg');
-
     // Si muestra un mensaje:
     // cy.contains('Sessió iniciada correctament').should('be.visible');
   });
