@@ -202,6 +202,98 @@
     <!-- Footer -->
     <FooterComponent />
 
+    <div v-if="filterPanelOpen" class="fixed inset-0 z-50 flex">
+      <div class="absolute inset-0 bg-black/60" @click="filterPanelOpen = false"></div>
+      <div class="relative z-10 ml-auto h-full w-full max-w-md bg-gray-900 border-l border-gray-800 shadow-2xl flex flex-col">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-800">
+          <div>
+            <p class="text-lg font-semibold">Filtres avançats</p>
+            <p class="text-sm text-gray-400">Refina la teva cerca per gèneres, plataformes i ordenació</p>
+          </div>
+          <button class="text-gray-400 hover:text-white" @click="filterPanelOpen = false" aria-label="Tancar filtres">
+            &times;
+          </button>
+        </div>
+        <div class="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+          <div>
+            <p class="text-sm font-semibold text-gray-300 mb-2">Ordenar per</p>
+            <select
+              v-model="selectedSort"
+              @change="handleSortChange"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option v-for="option in sortOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <p class="text-sm font-semibold text-gray-300 mb-3">Gèneres</p>
+            <div v-if="availableGenres.length" class="flex flex-wrap gap-2">
+              <label
+                v-for="genre in availableGenres"
+                :key="genre"
+                class="cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  class="sr-only"
+                  :value="genre"
+                  v-model="selectedGenres"
+                  @change="handleGenreChange"
+                />
+                <span
+                  class="inline-flex items-center px-3 py-1 rounded-full border text-sm transition-colors"
+                  :class="selectedGenres.includes(genre) ? 'bg-purple-600 border-purple-500 text-white' : 'border-gray-700 text-gray-300 hover:bg-gray-800'"
+                >
+                  {{ genre }}
+                </span>
+              </label>
+            </div>
+            <p v-else class="text-sm text-gray-500">Encara no hi ha gèneres disponibles.</p>
+          </div>
+
+          <div>
+            <p class="text-sm font-semibold text-gray-300 mb-3">Plataformes</p>
+            <div v-if="availablePlatforms.length" class="flex flex-wrap gap-2">
+              <label
+                v-for="platform in availablePlatforms"
+                :key="platform"
+                class="cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  class="sr-only"
+                  :value="platform"
+                  v-model="selectedPlatforms"
+                  @change="handlePlatformChange"
+                />
+                <span
+                  class="inline-flex items-center px-3 py-1 rounded-full border text-sm transition-colors"
+                  :class="selectedPlatforms.includes(platform) ? 'bg-purple-600 border-purple-500 text-white' : 'border-gray-700 text-gray-300 hover:bg-gray-800'"
+                >
+                  {{ platform }}
+                </span>
+              </label>
+            </div>
+            <p v-else class="text-sm text-gray-500">Encara no hi ha plataformes disponibles.</p>
+          </div>
+        </div>
+        <div class="border-t border-gray-800 px-6 py-4 flex items-center justify-between">
+          <button type="button" class="text-sm text-gray-400 hover:text-white" @click="clearFilters">
+            Netejar filtres
+          </button>
+          <button
+            type="button"
+            class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm font-semibold"
+            @click="filterPanelOpen = false"
+          >
+            Fet
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -253,7 +345,8 @@ const loading = ref(true)
 const searchQuery = ref('')
 const showSearchDropdown = ref(false)
 const showMenu = ref(false)
-const menuRef = ref(null)
+const menuRef = ref<HTMLElement | null>(null)
+const filterPanelOpen = ref(false)
 
 // Computed para filtrar juegos
 const filteredGames = computed(() => {
@@ -349,6 +442,7 @@ const fetchGames = async () => {
       sort: selectedSort.value,
       genres: selectedGenres.value,
       platforms: selectedPlatforms.value,
+      limit: 20,
     })
     games.value = data.items.map(mapGame)
     availableGenres.value = data.availableGenres
