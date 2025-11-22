@@ -5,6 +5,7 @@ import Perfil from '../views/Perfil.vue';
 import LandingPage from '../views/LandingPage.vue'
 import GameCard from '../views/GameCard.vue';
 import CatalegJocs from '../views/CatalegJocs.vue';
+import FAQS from '../views/FAQS.vue';
 import PoliticaPrivacitat from '../views/PoliticaPrivacitat.vue';
 import TermesUsu from '../views/TermesUsu.vue';
 
@@ -15,6 +16,7 @@ const routes = [
   { path: '/', component: LandingPage },
   { path: '/game/:id', component: GameCard, props: true },
   { path: '/cataleg', component: CatalegJocs },
+  { path: '/faqs', component: FAQS }
   { path: '/privacitat', name: 'Privacitat', component: PoliticaPrivacitat }
   { path: '/privacitat', name: 'Privacitat', component: PoliticaPrivacitat },
   { path: '/termes', name: 'TermesUsu', component: TermesUsu }
