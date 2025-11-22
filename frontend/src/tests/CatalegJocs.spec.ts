@@ -2,25 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import CatalegJocs from '../views/CatalegJocs.vue';
 import GameCardMini from '../views/GameCardMini.vue';
-import { createRouter, createWebHistory } from 'vue-router';
 import { api, PaginatedGamesResponse, GameSummary } from '@/services/api';
 import { auth } from '@/services/auth';
+import { makeTestRouter } from './setup/router';
 
 // Mock de los servicios
 vi.mock('@/services/api');
 vi.mock('@/services/auth');
-
-// Creamos un router de prueba
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    { path: '/', name: 'home', component: { template: '<div></div>' } },
-    { path: '/cataleg', name: 'cataleg', component: { template: '<div></div>' } },
-    { path: '/perfil', name: 'perfil', component: { template: '<div></div>' } },
-    { path: '/login', name: 'login', component: { template: '<div></div>' } },
-    { path: '/game/:id', name: 'game', component: { template: '<div></div>' } }, // Added for game detail links
-  ],
-});
 
 // Datos de prueba
 const mockGames: GameSummary[] = [
@@ -40,12 +28,18 @@ const createResponse = (overrides?: Partial<PaginatedGamesResponse>): PaginatedG
 });
 
 describe('CatalegJocs.vue', () => {
-  beforeEach(() => {
+  let router: ReturnType<typeof makeTestRouter>;
+
+  beforeEach(async () => {
     // Reseteamos los mocks antes de cada test
     vi.resetAllMocks();
 
     // Mock por defecto para el estado de autenticación (no logueado)
     auth.state = { token: null, user: null };
+
+    router = makeTestRouter();
+    await router.push('/cataleg');
+    await router.isReady();
   });
 
   describe('Renderizado Inicial y Carga de Datos', () => {

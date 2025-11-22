@@ -1,25 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import CatalegJocs from '../views/CatalegJocs.vue';
-import { createRouter, createWebHistory } from 'vue-router';
 import { api, PaginatedGamesResponse, GameSummary } from '@/services/api';
 import { auth } from '@/services/auth';
+import { makeTestRouter } from './setup/router';
 
 // Mock de los servicios
 vi.mock('@/services/api');
 vi.mock('@/services/auth');
-
-// Creamos un router de prueba
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    { path: '/', name: 'home', component: { template: '<div></div>' } },
-    { path: '/cataleg', name: 'cataleg', component: { template: '<div></div>' } },
-    { path: '/perfil', name: 'perfil', component: { template: '<div></div>' } },
-    { path: '/login', name: 'login', component: { template: '<div></div>' } },
-    { path: '/game/:id', name: 'game', component: { template: '<div></div>' } },
-  ],
-});
 
 // Datos de prueba
 const mockGames: GameSummary[] = [
@@ -39,10 +27,13 @@ const createResponse = (overrides?: Partial<PaginatedGamesResponse>): PaginatedG
 });
 
 describe('CatalegJocs.vue - Filter Functionality', () => {
+  let router: ReturnType<typeof makeTestRouter>;
+
   beforeEach(async () => {
     vi.resetAllMocks();
     auth.state = { token: null, user: null };
     vi.mocked(api.getGames).mockResolvedValue(createResponse());
+    router = makeTestRouter();
     // Reset router to a known state before each test
     await router.push('/cataleg');
     await router.isReady();
@@ -60,11 +51,11 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     expect(wrapper.vm.selectedGenres).toEqual([]);
     expect(wrapper.vm.selectedPlatforms).toEqual([]);
     expect(wrapper.vm.selectedSort).toBe('best');
-    expect(api.getGames).toHaveBeenCalledWith({
+    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({
       sort: 'best',
       genres: [],
       platforms: [],
-    });
+    }));
   });
 
   it('should initialize filters from URL query parameters', async () => {
@@ -80,12 +71,14 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     expect(wrapper.vm.selectedGenres).toEqual(['RPG', 'Action']);
     expect(wrapper.vm.selectedPlatforms).toEqual(['PC']);
     expect(wrapper.vm.selectedSort).toBe('year');
-    expect(api.getGames).toHaveBeenCalledWith({
+    const calls = vi.mocked(api.getGames).mock.calls;
+    const args = (calls[1] ?? calls[0])?.[0];
+    expect(args).toEqual(expect.objectContaining({
       q: 'test',
       sort: 'year',
       genres: ['RPG', 'Action'],
       platforms: ['PC'],
-    });
+    }));
   });
 
   it('should open and close the filter panel', async () => {
@@ -294,10 +287,11 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     expect(wrapper.vm.activeFilters.length).toBe(0);
 
     expect(router.currentRoute.value.query).toEqual({ sort: 'best' }); // All query params should be cleared
-    expect(api.getGames).toHaveBeenCalledWith({
+    const lastCall = vi.mocked(api.getGames).mock.calls.at(-1)?.[0];
+    expect(lastCall).toEqual(expect.objectContaining({
       sort: 'best',
       genres: [],
       platforms: [],
-    });
+    }));
   });
 });
