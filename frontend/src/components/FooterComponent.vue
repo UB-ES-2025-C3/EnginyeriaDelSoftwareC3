@@ -39,7 +39,11 @@
           </h4>
           <ul class="space-y-2 text-sm">
             <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Ressenyes</a></li>
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Discord</a></li>
+            <li>
+              <a href="https://discord.gg/Xrzh5J8FTm" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">
+                Discord
+              </a>
+            </li>
           </ul>
         </div>
 
