@@ -16,8 +16,7 @@ const routes = [
   { path: '/', component: LandingPage },
   { path: '/game/:id', component: GameCard, props: true },
   { path: '/cataleg', component: CatalegJocs },
-  { path: '/faqs', component: FAQS }
-  { path: '/privacitat', name: 'Privacitat', component: PoliticaPrivacitat }
+  { path: '/faqs', component: FAQS },
   { path: '/privacitat', name: 'Privacitat', component: PoliticaPrivacitat },
   { path: '/termes', name: 'TermesUsu', component: TermesUsu }
 ];
