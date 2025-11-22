@@ -22,7 +22,9 @@
             Explorar
           </h4>
           <ul class="space-y-2 text-sm">
+            <router-link to="/cataleg">
             <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Catàleg</a></li>
+            </router-link>
             <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Novetats</a></li>
           </ul>
         </div>

@@ -14,11 +14,11 @@
             </router-link>
             
             <nav class="hidden lg:flex items-center gap-6">
-              <router-link to="/contacto" class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
-                <span class="text-sm">💬</span> Contacte
-              </router-link>
-              <router-link to="/faqs" class="flex items-center gap-2 text-purple-400 font-medium whitespace-nowrap">
-                <span class="text-sm">❓</span> FAQs
+              <button class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
+                <span class="text-sm">👥</span> Comunitat
+              </button>
+              <router-link to="/contacte" class="flex items-center gap-2 text-purple-400 font-medium whitespace-nowrap">
+                <span class="text-sm">❓</span> Suport
               </router-link>
             </nav>
           </div>
