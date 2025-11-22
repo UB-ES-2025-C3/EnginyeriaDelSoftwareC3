@@ -63,6 +63,7 @@ export type Solicitud = {
   mensaje: string;
   fecha?: Date;
   leido?: boolean;
+};
 export type GameSummary = {
   _id: string;
   name: string;
