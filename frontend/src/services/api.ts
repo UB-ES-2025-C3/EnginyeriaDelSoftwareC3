@@ -53,6 +53,18 @@ export type Game = {
   reviews: Review[];
 };
 
+// ⭐ NUEVO: Tipo para Solicitud
+export type Solicitud = {
+  _id?: string;
+  nombre: string;
+  email: string;
+  tipo: 'queja' | 'mejora' | 'comentario';
+  asunto: string;
+  mensaje: string;
+  fecha?: Date;
+  leido?: boolean;
+};
+
 async function http<T>(path: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { "Content-Type": "application/json", ...(opts?.headers || {}) },
@@ -115,4 +127,47 @@ export const api = {
   // Jocs
   getGames: () => http<Game[]>("/api/games"),
   getGame:  (id: string) => http<Game>(`/api/games/${id}`),
+
+  // ⭐ NUEVO: Solicitudes (Contacto)
+  createSolicitud: (payload: Omit<Solicitud, '_id' | 'fecha' | 'leido'>) =>
+    http<{ success: boolean; message: string; data: Solicitud }>("/api/solicitudes", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  // ⭐ NUEVO: Crear solicitud con archivos (FormData)
+  createSolicitudWithFiles: async (formData: FormData) => {
+    const res = await fetch(`${API_BASE}/api/solicitudes`, {
+      method: 'POST',
+      body: formData, // No incluir Content-Type, el navegador lo establece automáticamente con boundary
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ error: res.statusText }));
+      throw error;
+    }
+    return res.json() as Promise<{ success: boolean; message: string; data: Solicitud }>;
+  },
+
+  // Métodos opcionales para admin (si quieres ver las solicitudes)
+  getSolicitudes: (token?: string) =>
+    http<{ success: boolean; count: number; data: Solicitud[] }>("/api/solicitudes", {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }),
+
+  getSolicitud: (id: string, token?: string) =>
+    http<{ success: boolean; data: Solicitud }>(`/api/solicitudes/${id}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }),
+
+  markSolicitudAsRead: (id: string, token: string) =>
+    http<{ success: boolean; message: string; data: Solicitud }>(`/api/solicitudes/${id}/leido`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+
+  deleteSolicitud: (id: string, token: string) =>
+    http<{ success: boolean; message: string }>(`/api/solicitudes/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    }),
 };

@@ -39,7 +39,11 @@
           </h4>
           <ul class="space-y-2 text-sm">
             <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Ressenyes</a></li>
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Discord</a></li>
+            <li>
+              <a href="https://discord.gg/Xrzh5J8FTm" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">
+                Discord
+              </a>
+            </li>
           </ul>
         </div>
 
@@ -54,9 +58,11 @@
           </h4>
           <ul class="space-y-2 text-sm">
             <router-link to="/faqs">
-              <li><a class="text-gray-400 hover:text-white transition-colors">FAQS</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">FAQS</a></li>
             </router-link>
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contacte</a></li>
+            <router-link to="/contacte">
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contacte</a></li>
+            </router-link>
           </ul>
         </div>
 
