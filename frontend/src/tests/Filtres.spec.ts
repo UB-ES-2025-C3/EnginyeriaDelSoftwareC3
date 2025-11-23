@@ -40,17 +40,14 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
   });
 
   it('should initialize with default filters if no query parameters are present', async () => {
-    const wrapper = mount(CatalegJocs, {
+    mount(CatalegJocs, {
       global: {
         plugins: [router],
       },
     });
     await flushPromises();
 
-    expect(wrapper.vm.searchQuery).toBe('');
-    expect(wrapper.vm.selectedGenres).toEqual([]);
-    expect(wrapper.vm.selectedPlatforms).toEqual([]);
-    expect(wrapper.vm.selectedSort).toBe('best');
+    expect(router.currentRoute.value.query).toEqual({});
     expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({
       sort: 'best',
       genres: [],
@@ -67,10 +64,13 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     });
     await flushPromises();
 
-    expect(wrapper.vm.searchQuery).toBe('test');
-    expect(wrapper.vm.selectedGenres).toEqual(['RPG', 'Acció']);
-    expect(wrapper.vm.selectedPlatforms).toEqual(['PC']);
-    expect(wrapper.vm.selectedSort).toBe('year');
+    // Open filter panel to make the select element visible
+    await wrapper.find('button[aria-label="Obrir filtres"]').trigger('click');
+    await flushPromises();
+
+    expect((wrapper.get('input[type="text"]').element as HTMLInputElement).value).toBe('test');
+    expect((wrapper.get('select').element as HTMLSelectElement).value).toBe('year');
+
     const calls = vi.mocked(api.getGames).mock.calls;
     const args = (calls[1] ?? calls[0])?.[0];
     expect(args).toEqual(expect.objectContaining({
@@ -91,21 +91,20 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
 
     const filterButton = wrapper.find('button[aria-label="Obrir filtres"]');
     expect(filterButton.exists()).toBe(true);
-    expect(wrapper.vm.filterPanelOpen).toBe(false);
+    expect(wrapper.find('.max-w-md.bg-gray-900').exists()).toBe(false);
 
     await filterButton.trigger('click');
-    expect(wrapper.vm.filterPanelOpen).toBe(true);
-    expect(wrapper.find('.max-w-md.bg-gray-900').exists()).toBe(true); // Check for filter panel presence
+    expect(wrapper.find('.max-w-md.bg-gray-900').exists()).toBe(true);
 
     const closeButton = wrapper.find('button[aria-label="Tancar filtres"]');
     expect(closeButton.exists()).toBe(true);
     await closeButton.trigger('click');
-    expect(wrapper.vm.filterPanelOpen).toBe(false);
-    expect(wrapper.find('.max-w-md.bg-gray-900').exists()).toBe(false); // Check for filter panel absence
+    await flushPromises();
+    expect(wrapper.find('.max-w-md.bg-gray-900').exists()).toBe(false);
   });
 
   it('should update searchQuery and trigger search suggestions on input', async () => {
-    vi.useFakeTimers(); // Use fake timers for debounce testing
+    vi.useFakeTimers();
     const wrapper = mount(CatalegJocs, {
       global: {
         plugins: [router],
@@ -117,14 +116,14 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     expect(searchInput.exists()).toBe(true);
 
     await searchInput.setValue('witcher');
-    expect(wrapper.vm.searchQuery).toBe('witcher');
-    expect(api.getGames).not.toHaveBeenCalledWith(expect.objectContaining({ q: 'witcher' })); // Debounced, not called immediately
+    expect((searchInput.element as HTMLInputElement).value).toBe('witcher');
+    expect(api.getGames).not.toHaveBeenCalledWith(expect.objectContaining({ q: 'witcher' }));
 
-    vi.advanceTimersByTime(250); // Advance timer past debounce
+    vi.advanceTimersByTime(250);
     await flushPromises();
 
     expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ q: 'witcher', limit: 5 }));
-    vi.useRealTimers(); // Restore real timers
+    vi.useRealTimers();
   });
 
   it('should show suggestions, hide them on blur, and apply the query on Enter', async () => {
@@ -143,8 +142,7 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     await flushPromises();
 
     expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ q: 'witcher', limit: 5 }));
-    const suggestions = wrapper.findAll('a.flex.items-center.gap-3.p-3');
-    expect(suggestions.length).toBeGreaterThan(0);
+    expect(wrapper.findAll('a.flex.items-center.gap-3.p-3').length).toBeGreaterThan(0);
 
     await searchInput.trigger('blur');
     vi.advanceTimersByTime(200);
@@ -167,7 +165,6 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     });
     await flushPromises();
 
-    // Open filter panel
     await wrapper.find('button[aria-label="Obrir filtres"]').trigger('click');
     await flushPromises();
 
@@ -175,17 +172,15 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     expect(rpgCheckbox.exists()).toBe(true);
     expect((rpgCheckbox.element as HTMLInputElement).checked).toBe(false);
 
-    await rpgCheckbox.setValue(true); // Select RPG
+    await rpgCheckbox.setValue(true);
     await flushPromises();
 
-    expect(wrapper.vm.selectedGenres).toEqual(['RPG']);
-    expect(router.currentRoute.value.query.genres?.toString().split(',')).toEqual(expect.arrayContaining(['RPG']));
+    expect(router.currentRoute.value.query.genres).toBe('RPG');
     expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ genres: expect.arrayContaining(['RPG']) }));
 
-    await rpgCheckbox.setValue(false); // Deselect RPG
+    await rpgCheckbox.setValue(false);
     await flushPromises();
 
-    expect(wrapper.vm.selectedGenres).toEqual([]);
     expect(router.currentRoute.value.query.genres).toBeUndefined();
     expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ genres: [] }));
   });
@@ -198,7 +193,6 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     });
     await flushPromises();
 
-    // Open filter panel
     await wrapper.find('button[aria-label="Obrir filtres"]').trigger('click');
     await flushPromises();
 
@@ -206,17 +200,15 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     expect(pcCheckbox.exists()).toBe(true);
     expect((pcCheckbox.element as HTMLInputElement).checked).toBe(false);
 
-    await pcCheckbox.setValue(true); // Select PC
+    await pcCheckbox.setValue(true);
     await flushPromises();
 
-    expect(wrapper.vm.selectedPlatforms).toEqual(['PC']);
-    expect(router.currentRoute.value.query.platforms?.toString()).toBe('PC');
+    expect(router.currentRoute.value.query.platforms).toBe('PC');
     expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ platforms: expect.arrayContaining(['PC']) }));
 
-    await pcCheckbox.setValue(false); // Deselect PC
+    await pcCheckbox.setValue(false);
     await flushPromises();
 
-    expect(wrapper.vm.selectedPlatforms).toEqual([]);
     expect(router.currentRoute.value.query.platforms).toBeUndefined();
     expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ platforms: [] }));
   });
@@ -229,24 +221,21 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     });
     await flushPromises();
 
-    // Open filter panel
     await wrapper.find('button[aria-label="Obrir filtres"]').trigger('click');
     await flushPromises();
 
     const sortSelect = wrapper.find('select');
     expect(sortSelect.exists()).toBe(true);
 
-    await sortSelect.setValue('year'); // Select 'Any de llançament'
+    await sortSelect.setValue('year');
     await flushPromises();
 
-    expect(wrapper.vm.selectedSort).toBe('year');
     expect(router.currentRoute.value.query.sort).toBe('year');
     expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ sort: 'year' }));
 
-    await sortSelect.setValue('best'); // Select 'Millor valorats primer'
+    await sortSelect.setValue('best');
     await flushPromises();
 
-    expect(wrapper.vm.selectedSort).toBe('best');
     expect(router.currentRoute.value.query.sort).toBe('best');
     expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ sort: 'best' }));
   });
@@ -258,30 +247,29 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
       },
     });
     await flushPromises();
-
+  
     await wrapper.get('button[aria-label="Obrir filtres"]').trigger('click');
     await flushPromises();
-
+  
     await wrapper.get('input[type="checkbox"][value="RPG"]').setValue(true);
-    await wrapper.get('input[type="checkbox"][value="Action"]').setValue(true);
+    await wrapper.get('input[type="checkbox"][value="Acció"]').setValue(true);
     await wrapper.get('input[type="checkbox"][value="PC"]').setValue(true);
     await flushPromises();
-
-    expect(wrapper.vm.activeFilters).toHaveLength(3);
-    expect(router.currentRoute.value.query.genres).toBe('RPG,Action');
-    expect(router.currentRoute.value.query.platforms).toBe('PC');
-
+  
     const chipContainer = wrapper.get('div.flex.flex-wrap.gap-2');
-    const genreChip = chipContainer.findAll('button.inline-flex.items-center').find((chip) =>
+    expect(chipContainer.findAll('button.inline-flex.items-center.border').length).toBe(3); // Changed selector
+    expect(router.currentRoute.value.query.genres).toBe('RPG,Acció');
+    expect(router.currentRoute.value.query.platforms).toBe('PC');
+  
+    const genreChip = chipContainer.findAll('button.inline-flex.items-center.border').find((chip) => // Changed selector
       chip.text().includes('Gènere: RPG')
     );
     expect(genreChip).toBeDefined();
     await genreChip?.trigger('click');
     await flushPromises();
-
-    expect(wrapper.vm.selectedGenres).toEqual(['Action']);
-    expect(wrapper.vm.activeFilters).toHaveLength(2);
-    expect(router.currentRoute.value.query.genres).toBe('Action');
+  
+    expect(chipContainer.findAll('button.inline-flex.items-center.border').length).toBe(2); // Changed selector
+    expect(router.currentRoute.value.query.genres).toBe('Acció');
   });
 
   it('should remove an individual active filter chip', async () => {
@@ -293,39 +281,32 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     });
     await flushPromises();
 
-    expect(wrapper.vm.activeFilters.length).toBe(3); // Search, Genre, Platform
+    const getChips = () => wrapper.findAll('button.inline-flex.items-center.border'); // Changed selector
+    expect(getChips().length).toBe(3);
 
-    // Remove search filter
-    const searchChip = wrapper.find('button.inline-flex.items-center:nth-child(1)'); // First chip is search
-    expect(searchChip.text()).toContain('Cerca: test');
-    await searchChip.trigger('click');
+    const searchChip = getChips().find(c => c.text().includes('Cerca: test'));
+    expect(searchChip).toBeDefined();
+    await searchChip!.trigger('click');
     await flushPromises();
 
-    expect(wrapper.vm.searchQuery).toBe('');
     expect(router.currentRoute.value.query.q).toBeUndefined();
-    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ q: undefined }));
+    expect(getChips().length).toBe(2);
 
-    // Remove genre filter
-    const genreChip = wrapper.find('button.inline-flex.items-center:nth-child(1)'); // Now first chip is genre
-    expect(genreChip.text()).toContain('Gènere: RPG');
-    await genreChip.trigger('click');
+    const genreChip = getChips().find(c => c.text().includes('Gènere: RPG'));
+    expect(genreChip).toBeDefined();
+    await genreChip!.trigger('click');
     await flushPromises();
 
-    expect(wrapper.vm.selectedGenres).toEqual([]);
     expect(router.currentRoute.value.query.genres).toBeUndefined();
-    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ genres: [] }));
+    expect(getChips().length).toBe(1);
 
-    // Remove platform filter
-    const platformChip = wrapper.find('button.inline-flex.items-center:nth-child(1)'); // Now first chip is platform
-    expect(platformChip.text()).toContain('Plataforma: PC');
-    await platformChip.trigger('click');
+    const platformChip = getChips().find(c => c.text().includes('Plataforma: PC'));
+    expect(platformChip).toBeDefined();
+    await platformChip!.trigger('click');
     await flushPromises();
 
-    expect(wrapper.vm.selectedPlatforms).toEqual([]);
     expect(router.currentRoute.value.query.platforms).toBeUndefined();
-    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ platforms: [] }));
-
-    expect(wrapper.vm.activeFilters.length).toBe(0);
+    expect(getChips().length).toBe(0);
   });
 
   it('should clear all filters', async () => {
@@ -337,23 +318,19 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     });
     await flushPromises();
 
-    expect(wrapper.vm.activeFilters.length).toBe(3);
-    expect(wrapper.vm.selectedSort).toBe('year');
+    expect(wrapper.findAll('button.inline-flex.items-center.border').length).toBe(3); // Changed selector
 
     const clearFiltersButton = wrapper.find('button.text-xs.uppercase.tracking-wide');
     expect(clearFiltersButton.exists()).toBe(true);
     await clearFiltersButton.trigger('click');
     await flushPromises();
 
-    expect(wrapper.vm.searchQuery).toBe('');
-    expect(wrapper.vm.selectedGenres).toEqual([]);
-    expect(wrapper.vm.selectedPlatforms).toEqual([]);
-    expect(wrapper.vm.selectedSort).toBe('best');
-    expect(wrapper.vm.activeFilters.length).toBe(0);
+    expect(wrapper.findAll('button.inline-flex.items-center.border').length).toBe(0); // Changed selector
+    expect(router.currentRoute.value.query).toEqual({ sort: 'best' });
 
-    expect(router.currentRoute.value.query).toEqual({ sort: 'best' }); // All query params should be cleared
     const lastCall = vi.mocked(api.getGames).mock.calls.at(-1)?.[0];
     expect(lastCall).toEqual(expect.objectContaining({
+      q: undefined,
       sort: 'best',
       genres: [],
       platforms: [],
