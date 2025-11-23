@@ -304,6 +304,7 @@ import GameCardMini from '@/views/GameCardMini.vue'
 import { api, GameSummary } from '@/services/api'
 import { auth } from '@/services/auth'
 import FooterComponent from "@/components/FooterComponent.vue";
+import { buildGenreMap, buildPlatformMap, type FacetMap } from '@/utils/facets'
 
 const router = useRouter()
 const route = useRoute()
@@ -361,6 +362,8 @@ const filteredGames = computed(() => {
 
 const availableGenres = ref<string[]>([])
 const availablePlatforms = ref<string[]>([])
+const genreMap = ref<FacetMap>({})
+const platformMap = ref<FacetMap>({})
 const selectedGenres = ref<string[]>([])
 const selectedPlatforms = ref<string[]>([])
 const selectedSort = ref<SortOption['value']>('best')
@@ -423,6 +426,47 @@ const parseListQuery = (value: unknown) => {
   return []
 }
 
+const expandSelectionToRaw = (selected: string[], map: FacetMap) => {
+  const expanded = new Set<string>()
+  selected.forEach((key) => {
+    const rawValues = map[key]
+    if (rawValues?.length) {
+      rawValues.forEach((raw) => expanded.add(raw))
+    } else if (key.trim()) {
+      expanded.add(key)
+    }
+  })
+  return Array.from(expanded)
+}
+
+const normalizeSelectionToCanonical = (values: string[], map: FacetMap) => {
+  const canonicalKeys = Object.keys(map)
+  const normalized: string[] = []
+  const seen = new Set<string>()
+
+  values.forEach((value) => {
+    const trimmed = value.trim()
+    if (!trimmed) return
+    if (canonicalKeys.includes(trimmed)) {
+      if (!seen.has(trimmed)) normalized.push(trimmed)
+      seen.add(trimmed)
+      return
+    }
+
+    const match = canonicalKeys.find((key) => map[key]?.some((raw) => raw.toLowerCase() === trimmed.toLowerCase()))
+    const canonical = match || trimmed
+    if (!seen.has(canonical)) normalized.push(canonical)
+    seen.add(canonical)
+  })
+
+  return normalized
+}
+
+const haveSameItems = (a: string[], b: string[]) => {
+  if (a.length !== b.length) return false
+  return a.every((item) => b.includes(item)) && b.every((item) => a.includes(item))
+}
+
 const mapGame = (game: GameSummary): CatalogGame => ({
   id: game._id,
   image: game.image,
@@ -434,19 +478,52 @@ const mapGame = (game: GameSummary): CatalogGame => ({
   reviewCount: Number(game.reviewCount ?? 0)
 })
 
-const fetchGames = async () => {
+const fetchGames = async (options?: { skipRetry?: boolean }) => {
   try {
     loading.value = true
+    const previousGenres = [...selectedGenres.value]
+    const previousPlatforms = [...selectedPlatforms.value]
+    const genreFilters = expandSelectionToRaw(selectedGenres.value, genreMap.value)
+    const platformFilters = expandSelectionToRaw(selectedPlatforms.value, platformMap.value)
     const data = await api.getGames({
       q: searchQuery.value.trim() || undefined,
       sort: selectedSort.value,
-      genres: selectedGenres.value,
-      platforms: selectedPlatforms.value,
+      genres: genreFilters,
+      platforms: platformFilters,
       limit: 20,
     })
     games.value = data.items.map(mapGame)
-    availableGenres.value = data.availableGenres
-    availablePlatforms.value = data.availablePlatforms
+
+    const nextGenreMap = buildGenreMap(data.availableGenres || [])
+    const nextPlatformMap = buildPlatformMap(data.availablePlatforms || [])
+    const normalizedGenres = normalizeSelectionToCanonical(selectedGenres.value, nextGenreMap)
+    const normalizedPlatforms = normalizeSelectionToCanonical(selectedPlatforms.value, nextPlatformMap)
+    const expandedGenres = expandSelectionToRaw(normalizedGenres, nextGenreMap)
+    const expandedPlatforms = expandSelectionToRaw(normalizedPlatforms, nextPlatformMap)
+
+    genreMap.value = nextGenreMap
+    platformMap.value = nextPlatformMap
+    availableGenres.value = Object.keys(nextGenreMap)
+    availablePlatforms.value = Object.keys(nextPlatformMap)
+    selectedGenres.value = normalizedGenres
+    selectedPlatforms.value = normalizedPlatforms
+
+    const selectionChanged =
+      !haveSameItems(previousGenres, normalizedGenres) ||
+      !haveSameItems(previousPlatforms, normalizedPlatforms)
+
+    if (selectionChanged) {
+      updateQuery({ resetPage: true })
+    }
+
+    const needsRetry = !options?.skipRetry && (
+      !haveSameItems(genreFilters, expandedGenres) ||
+      !haveSameItems(platformFilters, expandedPlatforms)
+    )
+
+    if (needsRetry) {
+      await fetchGames({ skipRetry: true })
+    }
   } catch (err) {
     console.error('Error carregant jocs del backend:', err)
   } finally {
@@ -464,6 +541,12 @@ const fetchSearchSuggestions = async (term: string) => {
   }
 }
 
+const queryToSearchParams = (query: Record<string, string>) => {
+  const params = new URLSearchParams()
+  Object.entries(query).forEach(([key, value]) => params.set(key, value))
+  return params.toString()
+}
+
 const updateQuery = ({ page, resetPage }: { page?: number; resetPage?: boolean } = {}) => {
   const trimmedSearch = searchQuery.value.trim()
   const query: Record<string, string> = {
@@ -472,6 +555,14 @@ const updateQuery = ({ page, resetPage }: { page?: number; resetPage?: boolean }
   if (trimmedSearch) query.q = trimmedSearch
   if (selectedGenres.value.length) query.genres = selectedGenres.value.join(',')
   if (selectedPlatforms.value.length) query.platforms = selectedPlatforms.value.join(',')
+  if (page && !Number.isNaN(page)) query.page = String(page)
+
+  const currentQuery: Record<string, string> = {}
+  Object.entries(route.query).forEach(([key, value]) => {
+    if (typeof value === 'string') currentQuery[key] = value
+  })
+
+  if (queryToSearchParams(query) === queryToSearchParams(currentQuery)) return
 
   router.replace({ path: route.path, query }).catch(() => {})
 }
@@ -522,13 +613,12 @@ const clearFilters = () => {
 }
 
 const syncStateFromRoute = () => {
-  const { q, sort, genres, platforms, page } = route.query
+  const { q, sort, genres, platforms } = route.query
   searchQuery.value = typeof q === 'string' ? q : ''
   const sortValue = typeof sort === 'string' && sortOptions.some((option) => option.value === sort) ? sort : 'best'
   selectedSort.value = sortValue as SortOption['value']
-  selectedGenres.value = parseListQuery(genres)
-  selectedPlatforms.value = parseListQuery(platforms)
-  const parsedPage = Math.max(parseInt((page as string) ?? '1', 10) || 1, 1)
+  selectedGenres.value = normalizeSelectionToCanonical(parseListQuery(genres), genreMap.value)
+  selectedPlatforms.value = normalizeSelectionToCanonical(parseListQuery(platforms), platformMap.value)
   handleSearch()
 }
 
