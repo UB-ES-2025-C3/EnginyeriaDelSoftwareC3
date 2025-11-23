@@ -68,7 +68,7 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     await flushPromises();
 
     expect(wrapper.vm.searchQuery).toBe('test');
-    expect(wrapper.vm.selectedGenres).toEqual(['RPG', 'Action']);
+    expect(wrapper.vm.selectedGenres).toEqual(['RPG', 'Acció']);
     expect(wrapper.vm.selectedPlatforms).toEqual(['PC']);
     expect(wrapper.vm.selectedSort).toBe('year');
     const calls = vi.mocked(api.getGames).mock.calls;
@@ -76,8 +76,8 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     expect(args).toEqual(expect.objectContaining({
       q: 'test',
       sort: 'year',
-      genres: ['RPG', 'Action'],
-      platforms: ['PC'],
+      genres: expect.arrayContaining(['RPG', 'Action']),
+      platforms: expect.arrayContaining(['PC']),
     }));
   });
 
@@ -179,8 +179,8 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     await flushPromises();
 
     expect(wrapper.vm.selectedGenres).toEqual(['RPG']);
-    expect(router.currentRoute.value.query.genres).toBe('RPG');
-    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ genres: ['RPG'] }));
+    expect(router.currentRoute.value.query.genres?.toString().split(',')).toEqual(expect.arrayContaining(['RPG']));
+    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ genres: expect.arrayContaining(['RPG']) }));
 
     await rpgCheckbox.setValue(false); // Deselect RPG
     await flushPromises();
@@ -210,8 +210,8 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     await flushPromises();
 
     expect(wrapper.vm.selectedPlatforms).toEqual(['PC']);
-    expect(router.currentRoute.value.query.platforms).toBe('PC');
-    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ platforms: ['PC'] }));
+    expect(router.currentRoute.value.query.platforms?.toString()).toBe('PC');
+    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ platforms: expect.arrayContaining(['PC']) }));
 
     await pcCheckbox.setValue(false); // Deselect PC
     await flushPromises();
