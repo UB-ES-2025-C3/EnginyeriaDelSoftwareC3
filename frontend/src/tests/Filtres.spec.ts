@@ -127,6 +127,38 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     vi.useRealTimers(); // Restore real timers
   });
 
+  it('should show suggestions, hide them on blur, and apply the query on Enter', async () => {
+    vi.useFakeTimers();
+    const wrapper = mount(CatalegJocs, {
+      global: {
+        plugins: [router],
+      },
+    });
+    await flushPromises();
+
+    const searchInput = wrapper.get('input[type="text"][placeholder="Buscar jocs..."]');
+
+    await searchInput.setValue('witcher');
+    vi.advanceTimersByTime(260);
+    await flushPromises();
+
+    expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ q: 'witcher', limit: 5 }));
+    const suggestions = wrapper.findAll('a.flex.items-center.gap-3.p-3');
+    expect(suggestions.length).toBeGreaterThan(0);
+
+    await searchInput.trigger('blur');
+    vi.advanceTimersByTime(200);
+    await flushPromises();
+    expect(wrapper.find('a.flex.items-center.gap-3.p-3').exists()).toBe(false);
+
+    await searchInput.setValue('Metroid');
+    await searchInput.trigger('keyup.enter');
+    await flushPromises();
+
+    expect(router.currentRoute.value.query.q).toBe('Metroid');
+    vi.useRealTimers();
+  });
+
   it('should select and deselect genres and update the URL', async () => {
     const wrapper = mount(CatalegJocs, {
       global: {
@@ -217,6 +249,39 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     expect(wrapper.vm.selectedSort).toBe('best');
     expect(router.currentRoute.value.query.sort).toBe('best');
     expect(api.getGames).toHaveBeenCalledWith(expect.objectContaining({ sort: 'best' }));
+  });
+
+  it('should display multiple active filter chips and keep remaining selections when one is removed', async () => {
+    const wrapper = mount(CatalegJocs, {
+      global: {
+        plugins: [router],
+      },
+    });
+    await flushPromises();
+
+    await wrapper.get('button[aria-label="Obrir filtres"]').trigger('click');
+    await flushPromises();
+
+    await wrapper.get('input[type="checkbox"][value="RPG"]').setValue(true);
+    await wrapper.get('input[type="checkbox"][value="Action"]').setValue(true);
+    await wrapper.get('input[type="checkbox"][value="PC"]').setValue(true);
+    await flushPromises();
+
+    expect(wrapper.vm.activeFilters).toHaveLength(3);
+    expect(router.currentRoute.value.query.genres).toBe('RPG,Action');
+    expect(router.currentRoute.value.query.platforms).toBe('PC');
+
+    const chipContainer = wrapper.get('div.flex.flex-wrap.gap-2');
+    const genreChip = chipContainer.findAll('button.inline-flex.items-center').find((chip) =>
+      chip.text().includes('Gènere: RPG')
+    );
+    expect(genreChip).toBeDefined();
+    await genreChip?.trigger('click');
+    await flushPromises();
+
+    expect(wrapper.vm.selectedGenres).toEqual(['Action']);
+    expect(wrapper.vm.activeFilters).toHaveLength(2);
+    expect(router.currentRoute.value.query.genres).toBe('Action');
   });
 
   it('should remove an individual active filter chip', async () => {
