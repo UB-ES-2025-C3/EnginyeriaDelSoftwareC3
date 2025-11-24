@@ -189,7 +189,6 @@ const userInitials = computed(() => {
 
 // Estados del componente
 const games = ref([])
-const reviews = ref([])
 const loading = ref(true)
 const searchQuery = ref('')
 const showSearchDropdown = ref(false)
@@ -235,9 +234,8 @@ onMounted(async () => {
       genre: g.genre,
       year: Number(g.year),
       platform: g.platform,
-
+      reviews: g.reviews || []
     }))
-    await getGamesReviews()
   } catch (err) {
     console.error('Error carregant jocs del backend:', err)
   } finally {
@@ -249,18 +247,4 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
-
-async function getGamesReviews() {
-  try {
-    await Promise.all(
-      games.value.map(async (game) => {
-        const data = await api.getGameReviews(game.id)
-        game.reviews = data.reviews
-        console.log(`Ressenyes carregades per al joc ${game.name}:`, game.reviews)
-      })
-    )
-  } catch (e) {
-    console.error('Error carregant ressenyes:', e)
-  }
-}
 </script>
