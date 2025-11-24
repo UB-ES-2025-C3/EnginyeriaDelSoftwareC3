@@ -41,16 +41,19 @@ type MediaResponse = {
 };
 
 
-export interface Review {
-  _id: string
-  game: string
+interface Review {
+  _id?: string
   stars: number
   text: string
-  createdAt: string
-  user: {
-    _id: string
+  createdAt?: string
+  user?: {
+    _id?: string
     name?: string
     avatarUrl?: string
+  }
+  game?: {
+    _id?: string
+    name?: string
   }
 }
 

@@ -9,7 +9,13 @@ const router = Router();
 /** GET /api/reviews -> todas las reviews */
 router.get('/', async (req, res, next) => {
   try {
-    const reviews = await Review.find().lean();
+    const reviews = await Review
+      .find()
+      .populate('user', 'name avatarUrl')  // usuario
+      .populate('game', 'name')            // 👈 nombre del juego
+      .sort({ createdAt: -1 })            // opcional: más nuevas primero
+      .lean();
+
     res.json(reviews);
   } catch (err) {
     next(err);

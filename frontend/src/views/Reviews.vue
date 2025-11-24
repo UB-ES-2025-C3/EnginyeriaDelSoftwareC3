@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gradient-to-t from-gray-900 to-black text-white">
-    <!-- HEADER -->
+    <!-- HEADER (copiado de GameCard) -->
     <header class="sticky top-0 z-50 bg-gray-900/95 backdrop-blur-md border-b border-gray-800 shadow-lg">
       <div class="w-full px-6 py-4">
         <div class="grid grid-cols-3 items-center gap-4">
@@ -38,7 +38,7 @@
               />
             </div>
 
-            <!-- Dropdown de búsqueda (en aquesta pàgina no mostra res, però el markup és el mateix) -->
+            <!-- Dropdown de búsqueda (aquí vacío, pero mantenemos el markup) -->
             <div
               v-if="showSearchDropdown && filteredGames.length > 0"
               class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50"
@@ -58,7 +58,6 @@
               </router-link>
             </div>
 
-            <!-- Mensaje cuando no hay resultados -->
             <div
               v-if="showSearchDropdown && searchQuery && filteredGames.length === 0"
               class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 text-center text-gray-400 z-50"
@@ -85,7 +84,6 @@
               <span v-else class="text-sm font-bold">{{ userInitials }}</span>
             </router-link>
 
-            <!-- Si no está autenticado -->
             <router-link
               v-else
               to="/login"
@@ -95,7 +93,7 @@
               <span class="text-xl">👤</span>
             </router-link>
 
-            <!-- Botón de configuración / logout -->
+            <!-- Menú -->
             <div class="relative" ref="menuRef">
               <button
                 @click="showMenu = !showMenu"
@@ -104,7 +102,6 @@
                 <span class="text-xl">⚙️</span>
               </button>
 
-              <!-- Dropdown menu -->
               <div
                 v-if="showMenu"
                 class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl py-2 z-50"
@@ -139,20 +136,87 @@
       </div>
     </header>
 
-    <!-- CONTENIDO CENTRAL DE LA PÁGINA DE RESSENYES -->
+    <!-- CONTENIDO: feed de ressenyes -->
     <main class="max-w-5xl mx-auto px-4 py-12">
-      <div class="bg-gray-900 rounded-3xl shadow-2xl border border-gray-800 p-8 text-center">
-        <h1 class="text-3xl font-bold mb-4">Ressenyes</h1>
-        <p class="text-gray-400 text-sm mb-2">
-          Obre la consola del navegador per veure totes les ressenyes carregades.
-        </p>
-        <p class="text-xs text-gray-500">
-          (Ara mateix només es fa un <code>console.log</code> amb totes les ressenyes de l'API.)
-        </p>
+      <h1 class="text-3xl font-bold mb-6">Ressenyes de la comunitat</h1>
+
+      <div v-if="loading" class="text-center py-10 text-gray-400">
+        Carregant ressenyes...
+      </div>
+
+      <div v-else>
+        <div v-if="reviews.length === 0" class="text-sm text-gray-400">
+          Encara no hi ha ressenyes. Torna més tard!
+        </div>
+
+        <div v-else class="space-y-4">
+          <article
+            v-for="(review, i) in reviews"
+            :key="review._id || i"
+            class="flex items-start gap-4 bg-gray-900/80 p-4 rounded-lg border border-gray-800"
+          >
+            <!-- Avatar -->
+            <div class="flex-shrink-0">
+              <div
+                class="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex items-center justify-center text-sm font-medium text-white"
+              >
+                <img
+                  v-if="review.user?.avatarUrl"
+                  :src="review.user.avatarUrl"
+                  :alt="review.user?.name || 'Avatar'"
+                  class="w-full h-full object-cover"
+                />
+                <span v-else>
+                  {{ review.user?.name ? review.user.name[0].toUpperCase() : 'U' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Contenido -->
+            <div class="flex-1">
+              <!-- Nombre usuario + fecha -->
+              <header class="flex items-center justify-between gap-4 mb-1">
+                <div>
+                  <h4 class="text-sm font-semibold text-white">
+                    {{ review.user?.name || 'Usuari' }}
+                  </h4>
+                  <!-- 👇 TÍTULO DEL JUEGO -->
+                  <p class="text-xs text-gray-400">
+                    {{ review.game?.name || 'Joc desconegut' }}
+                  </p>
+                </div>
+                <span class="text-xs text-gray-400">
+                  {{ formatReviewDate(review.createdAt) }}
+                </span>
+              </header>
+
+              <!-- Estrellas -->
+              <div class="flex items-center gap-2 mb-1">
+                <div class="flex items-center gap-1">
+                  <Star
+                    v-for="n in review.stars"
+                    :key="`rfull-${i}-${n}`"
+                    class="w-4 h-4 fill-yellow-400"
+                  />
+                  <Star
+                    v-for="n in 5 - review.stars"
+                    :key="`rempty-${i}-${n}`"
+                    class="w-4 h-4 fill-gray-600"
+                  />
+                </div>
+              </div>
+
+              <!-- Texto -->
+              <p class="mt-1 text-sm text-gray-300 leading-relaxed">
+                {{ review.text }}
+              </p>
+            </div>
+          </article>
+        </div>
       </div>
     </main>
 
-    <!-- FOOTER (copiado de GameCard) -->
+    <!-- FOOTER -->
     <footer class="bg-gray-900 border-t border-gray-800 mt-20">
       <div class="max-w-7xl mx-auto px-4 py-12">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -165,52 +229,28 @@
           <div>
             <h4 class="font-semibold mb-4">Explorar</h4>
             <ul class="space-y-2 text-sm">
-              <li>
-                <a href="#" class="text-gray-400 hover:text-white transition-colors">Catàleg</a>
-              </li>
-              <li>
-                <a href="#" class="text-gray-400 hover:text-white transition-colors">Novetats</a>
-              </li>
-              <li>
-                <a href="#" class="text-gray-400 hover:text-white transition-colors">Més valorats</a>
-              </li>
-              <li>
-                <a href="#" class="text-gray-400 hover:text-white transition-colors">Pròxims llançaments</a>
-              </li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Catàleg</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Novetats</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Més valorats</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Pròxims llançaments</a></li>
             </ul>
           </div>
           <div>
             <h4 class="font-semibold mb-4">Comunitat</h4>
             <ul class="space-y-2 text-sm">
-              <li>
-                <a href="#" class="text-gray-400 hover:text-white transition-colors">Foros</a>
-              </li>
-              <li>
-                <a href="#" class="text-gray-400 hover:text-white transition-colors">Ressenyes</a>
-              </li>
-              <li>
-                <a href="#" class="text-gray-400 hover:text-white transition-colors">Esdeveniments</a>
-              </li>
-              <li>
-                <a href="#" class="text-gray-400 hover:text-white transition-colors">Discord</a>
-              </li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Foros</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Ressenyes</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Esdeveniments</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Discord</a></li>
             </ul>
           </div>
           <div>
             <h4 class="font-semibold mb-4">Suport</h4>
             <ul class="space-y-2 text-sm">
-              <li>
-                <a href="#" class="text-gray-400 hover:text-white transition-colors">Centre d'ajuda</a>
-              </li>
-              <li>
-                <a href="#" class="text-gray-400 hover:text-white transition-colors">Contacte</a>
-              </li>
-              <li>
-                <a href="#" class="text-gray-400 hover:text-white transition-colors">Política de privadesa</a>
-              </li>
-              <li>
-                <a href="#" class="text-gray-400 hover:text-white transition-colors">Termes d'ús</a>
-              </li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Centre d'ajuda</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contacte</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Política de privadesa</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Termes d'ús</a></li>
             </ul>
           </div>
         </div>
@@ -227,10 +267,27 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '@/services/api'
 import { auth } from '@/services/auth'
+import Star from '@/components/icons/Star.vue'
+
+interface Review {
+  _id?: string
+  stars: number
+  text: string
+  createdAt?: string
+  user?: {
+    _id?: string
+    name?: string
+    avatarUrl?: string
+  }
+  game?: {
+    _id?: string
+    name?: string
+  }
+}
 
 const router = useRouter()
 
-// Estados de autenticación del usuario
+// Auth
 const isLoggedIn = computed(() => !!auth.state.token && !!auth.state.user)
 const userName = computed(() => auth.state.user?.name || '')
 const userAvatar = computed(() => auth.state.user?.avatarUrl || '')
@@ -241,10 +298,10 @@ const userInitials = computed(() => {
   return names[0][0].toUpperCase()
 })
 
-//Estados del header (búsqueda y menú)
+// Header state
 const searchQuery = ref('')
 const showSearchDropdown = ref(false)
-const filteredGames = ref<any[]>([]) // en aquesta pàgina no filtrem res, però el header ho espera
+const filteredGames = ref<any[]>([])
 const showMenu = ref(false)
 const menuRef = ref<HTMLDivElement | null>(null)
 
@@ -274,14 +331,34 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
-// Cargar todas las reviews al montar (solo consola)
+// Reviews state
+const reviews = ref<Review[]>([])
+const loading = ref(true)
+
+const formatReviewDate = (iso?: string) => {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  return d.toLocaleDateString('ca-ES', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+// Cargar todas las reviews
 onMounted(async () => {
   try {
-    const reviews = await api.getAllReviews()
-    console.log('TOTES LES RESSENYES:', reviews)
+    loading.value = true
+    const data = await api.getAllReviews()
+    reviews.value = data
+    console.log('TOTES LES RESSENYES:', reviews.value)
   } catch (err) {
     console.error('Error carregant les ressenyes:', err)
+  } finally {
+    loading.value = false
   }
+
   document.addEventListener('click', handleClickOutside)
 })
 
