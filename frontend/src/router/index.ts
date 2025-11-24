@@ -5,7 +5,6 @@ import Perfil from '../views/Perfil.vue';
 import LandingPage from '../views/LandingPage.vue'
 import GameCard from '../views/GameCard.vue';
 import CatalegJocs from '../views/CatalegJocs.vue';
-import Reviews from '../views/Reviews.vue';
 
 const routes = [
   { path: '/register', component: Register },
@@ -13,8 +12,7 @@ const routes = [
   { path: '/perfil', component: Perfil },
   { path: '/', component: LandingPage },
   { path: '/game/:id', component: GameCard, props: true },
-  { path: '/cataleg', component: CatalegJocs },
-  { path: '/reviews', component: Reviews },
+  { path: '/cataleg', component: CatalegJocs }
 ];
 
 
