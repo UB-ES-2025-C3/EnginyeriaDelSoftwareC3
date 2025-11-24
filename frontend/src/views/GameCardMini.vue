@@ -23,10 +23,10 @@
           </div>
           
           <!-- Rating con estrellas si hay reviews -->
-          <div v-if="reviews && reviews.length > 0" class="flex items-center gap-1">
+          <div v-if="reviewCount > 0" class="flex items-center gap-1">
             <span class="text-yellow-400">⭐</span>
-            <span class="text-sm font-semibold text-white">{{ averageRating }}</span>
-            <span class="text-xs text-gray-400">({{ reviews.length }})</span>
+            <span class="text-sm font-semibold text-white">{{ formattedRating }}</span>
+            <span class="text-xs text-gray-400">({{ reviewCount }})</span>
           </div>
           
           <div v-else class="text-xs text-gray-400">
@@ -41,9 +41,9 @@
       </div>
 
       <!-- Indicador de reviews siempre visible (arriba a la derecha) -->
-      <div v-if="reviews && reviews.length > 0" class="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
+      <div v-if="reviewCount > 0" class="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
         <span>⭐</span>
-        <span>{{ averageRating }}</span>
+        <span>{{ formattedRating }}</span>
       </div>
     </div>
 
@@ -64,15 +64,9 @@ const props = defineProps({
   genre: { type: String, default: '' },
   year: { type: [String, Number], default: '' },
   platform: { type: String, default: '' },
-  reviews: { type: Array, default: () => [] }
+  averageRating: { type: Number, default: 0 },
+  reviewCount: { type: Number, default: 0 }
 })
 
-// Calcular el rating promedio
-const averageRating = computed(() => {
-  if (!props.reviews || props.reviews.length === 0) return 0
-  
-  const sum = props.reviews.reduce((acc, review) => acc + (review.stars || 0), 0)
-  const avg = sum / props.reviews.length
-  return avg.toFixed(1)
-})
+const formattedRating = computed(() => (props.averageRating ?? 0).toFixed(1))
 </script>
