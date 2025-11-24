@@ -329,6 +329,9 @@ const userInitials = computed(() => {
   return names[0][0].toUpperCase()
 })
 
+// Estados del componente
+const games = ref([])
+const reviews = ref([])
 type CatalogGame = {
   id: string
   image: string
@@ -481,6 +484,17 @@ const mapGame = (game: GameSummary): CatalogGame => ({
 const fetchGames = async (options?: { skipRetry?: boolean }) => {
   try {
     loading.value = true
+    const data = await api.getGames()
+    games.value = data.map(g => ({
+      id: g._id,
+      image: g.image,
+      name: g.name,
+      genre: g.genre,
+      year: Number(g.year),
+      platform: g.platform,
+
+    }))
+    await getGamesReviews()
     const previousGenres = [...selectedGenres.value]
     const previousPlatforms = [...selectedPlatforms.value]
     const genreFilters = expandSelectionToRaw(selectedGenres.value, genreMap.value)
@@ -641,4 +655,18 @@ onBeforeUnmount(() => {
     window.clearTimeout(searchDebounce)
   }
 })
+
+async function getGamesReviews() {
+  try {
+    await Promise.all(
+      games.value.map(async (game) => {
+        const data = await api.getGameReviews(game.id)
+        game.reviews = data.reviews
+        console.log(`Ressenyes carregades per al joc ${game.name}:`, game.reviews)
+      })
+    )
+  } catch (e) {
+    console.error('Error carregant ressenyes:', e)
+  }
+}
 </script>

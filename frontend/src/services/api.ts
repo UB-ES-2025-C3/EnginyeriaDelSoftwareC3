@@ -1,3 +1,5 @@
+import { create } from "domain";
+
 export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 // ⭐ CAMBIO 1: User completo con avatarUrl, bio, etc.
@@ -38,10 +40,50 @@ type MediaResponse = {
   bannerUrl?: string;
 };
 
-export type Review = {
-  stars: number;
-  text: string;
-};
+
+export interface Review {
+  _id?: string
+  stars: number
+  text: string
+  createdAt?: string
+  user?: {
+    _id?: string
+    name?: string
+    avatarUrl?: string
+  }
+  game?: {
+    _id?: string
+    name?: string
+  }
+}
+
+export interface CreateReviewPayload {
+  stars: number
+  text: string
+}
+
+export interface CreatedReview {
+  _id: string
+  game: string
+  stars: number
+  text: string
+  createdAt: string
+  user: {
+    _id: string
+    name?: string
+    avatarUrl?: string
+  }
+}
+
+export interface CreateReviewResponse {
+  message: string
+  review: CreatedReview
+}
+
+export interface GameReviewsResponse {
+  gameId: string
+  reviews: Review[]
+}
 
 export type Game = {
   _id: string;
@@ -173,6 +215,21 @@ export const api = {
     http<PaginatedGamesResponse>(`/api/games${buildQueryString(params)}`),
   getGame:  (id: string) => http<Game>(`/api/games/${id}`),
 
+  // Ressenyes
+  getAllReviews: () => http<Review[]>("/api/reviews"),
+
+  createReview: (token: string, gameId: string, payload: CreateReviewPayload) =>
+    http<CreateReviewResponse>(`/api/reviews/${gameId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  }),
+
+  getGameReviews: (gameId: string) => http<GameReviewsResponse>(`/api/games/${gameId}/reviews`),
+};
   // ⭐ NUEVO: Solicitudes (Contacto)
   createSolicitud: (payload: Omit<Solicitud, '_id' | 'fecha' | 'leido'>) =>
     http<{ success: boolean; message: string; data: Solicitud }>("/api/solicitudes", {

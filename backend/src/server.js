@@ -10,6 +10,7 @@ import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.routes.js';
 import profileRoutes from './routes/profile.routes.js';
 import gameRoutes from './routes/game.routes.js';
+import reviewRoutes from './routes/review.routes.js';
 import solicitudRoutes from './routes/solicitud.routes.js';
 
 const app = express();
@@ -47,6 +48,7 @@ app.use('/api/auth', rateLimit({ windowMs: 60_000, max: 20 }));
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/games', gameRoutes);
+app.use('/api/reviews', reviewRoutes);
 app.use('/api', solicitudRoutes);
 
 app.get('/health', (_, res) => res.json({ ok: true }));
