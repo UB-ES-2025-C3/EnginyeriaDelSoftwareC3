@@ -202,7 +202,6 @@
 
         <!-- Reseñas -->
         <div class="px-6 pb-8 pt-6">
-          <h3 class="text-xl font-bold mb-4">Resenyes recents</h3>
 
           <div v-if="reviews.length === 0" class="text-sm text-gray-400">
             Encara no hi ha ressenyes per a aquest joc. Sigues el primer a escriure una ressenya!
