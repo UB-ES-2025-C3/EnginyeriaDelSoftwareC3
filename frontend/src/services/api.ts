@@ -229,7 +229,7 @@ export const api = {
   }),
 
   getGameReviews: (gameId: string) => http<GameReviewsResponse>(`/api/games/${gameId}/reviews`),
-};
+
   // ⭐ NUEVO: Solicitudes (Contacto)
   createSolicitud: (payload: Omit<Solicitud, '_id' | 'fecha' | 'leido'>) =>
     http<{ success: boolean; message: string; data: Solicitud }>("/api/solicitudes", {

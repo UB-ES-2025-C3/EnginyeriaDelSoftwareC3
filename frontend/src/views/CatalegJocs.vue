@@ -330,8 +330,6 @@ const userInitials = computed(() => {
 })
 
 // Estados del componente
-const games = ref([])
-const reviews = ref([])
 type CatalogGame = {
   id: string
   image: string
@@ -481,24 +479,56 @@ const mapGame = (game: GameSummary): CatalogGame => ({
   reviewCount: Number(game.reviewCount ?? 0)
 })
 
+const applyLocalSort = () => {
+  switch (selectedSort.value) {
+    case 'best': {
+      games.value.sort((a, b) => {
+        if (b.averageRating !== a.averageRating) {
+          return b.averageRating - a.averageRating
+        }
+        // desempatar por nº de reseñas
+        return b.reviewCount - a.reviewCount
+      })
+      break
+    }
+
+    case 'worst': {
+      games.value.sort((a, b) => {
+        if (a.averageRating !== b.averageRating) {
+          return a.averageRating - b.averageRating
+        }
+        return a.reviewCount - b.reviewCount
+      })
+      break
+    }
+
+    case 'reviews': {
+      games.value.sort((a, b) => {
+        if (b.reviewCount !== a.reviewCount) {
+          return b.reviewCount - a.reviewCount
+        }
+        return b.averageRating - a.averageRating
+      })
+      break
+    }
+
+    case 'year': {
+      games.value.sort((a, b) => b.year - a.year)
+      break
+    }
+  }
+}
+
 const fetchGames = async (options?: { skipRetry?: boolean }) => {
   try {
     loading.value = true
-    const data = await api.getGames()
-    games.value = data.map(g => ({
-      id: g._id,
-      image: g.image,
-      name: g.name,
-      genre: g.genre,
-      year: Number(g.year),
-      platform: g.platform,
 
-    }))
-    await getGamesReviews()
     const previousGenres = [...selectedGenres.value]
     const previousPlatforms = [...selectedPlatforms.value]
+
     const genreFilters = expandSelectionToRaw(selectedGenres.value, genreMap.value)
     const platformFilters = expandSelectionToRaw(selectedPlatforms.value, platformMap.value)
+
     const data = await api.getGames({
       q: searchQuery.value.trim() || undefined,
       sort: selectedSort.value,
@@ -506,12 +536,17 @@ const fetchGames = async (options?: { skipRetry?: boolean }) => {
       platforms: platformFilters,
       limit: 20,
     })
+
     games.value = data.items.map(mapGame)
+    await recomputeRatingsFromDb()
+    applyLocalSort()
 
     const nextGenreMap = buildGenreMap(data.availableGenres || [])
     const nextPlatformMap = buildPlatformMap(data.availablePlatforms || [])
+
     const normalizedGenres = normalizeSelectionToCanonical(selectedGenres.value, nextGenreMap)
     const normalizedPlatforms = normalizeSelectionToCanonical(selectedPlatforms.value, nextPlatformMap)
+
     const expandedGenres = expandSelectionToRaw(normalizedGenres, nextGenreMap)
     const expandedPlatforms = expandSelectionToRaw(normalizedPlatforms, nextPlatformMap)
 
@@ -542,6 +577,35 @@ const fetchGames = async (options?: { skipRetry?: boolean }) => {
     console.error('Error carregant jocs del backend:', err)
   } finally {
     loading.value = false
+  }
+}
+
+
+// Recalcular mitjana i nombre de ressenyes a partir de la BBDD real
+const recomputeRatingsFromDb = async () => {
+  try {
+    await Promise.all(
+      games.value.map(async (game) => {
+        try {
+          const data = await api.getGameReviews(game.id)
+          const revs = data.reviews ?? []
+          const total = revs.length
+          const avg = total
+            ? revs.reduce((sum: number, r: any) => sum + (r.stars || 0), 0) / total
+            : 0
+
+          // Sobreescrivim les dades que venen hardcoded
+          game.averageRating = avg
+          game.reviewCount = total
+        } catch (err) {
+          console.error(`Error carregant ressenyes per al joc ${game.name}:`, err)
+          game.averageRating = 0
+          game.reviewCount = 0
+        }
+      })
+    )
+  } catch (e) {
+    console.error('Error global recalculant ratings des de la BBDD:', e)
   }
 }
 
@@ -656,17 +720,5 @@ onBeforeUnmount(() => {
   }
 })
 
-async function getGamesReviews() {
-  try {
-    await Promise.all(
-      games.value.map(async (game) => {
-        const data = await api.getGameReviews(game.id)
-        game.reviews = data.reviews
-        console.log(`Ressenyes carregades per al joc ${game.name}:`, game.reviews)
-      })
-    )
-  } catch (e) {
-    console.error('Error carregant ressenyes:', e)
-  }
-}
+
 </script>
