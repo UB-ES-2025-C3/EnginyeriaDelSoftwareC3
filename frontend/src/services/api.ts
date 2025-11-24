@@ -38,10 +38,15 @@ type MediaResponse = {
   bannerUrl?: string;
 };
 
+
 export type Review = {
-  stars: number;
-  text: string;
-};
+  _id: string
+  user: string | { name?: string; avatarUrl?: string }
+  game: string
+  stars: number
+  text: string
+  createdAt: string
+}
 
 export type Game = {
   _id: string;
@@ -115,4 +120,7 @@ export const api = {
   // Jocs
   getGames: () => http<Game[]>("/api/games"),
   getGame:  (id: string) => http<Game>(`/api/games/${id}`),
+
+  // Ressenyes
+  getAllReviews: () => http<Review[]>("/api/reviews"),
 };
