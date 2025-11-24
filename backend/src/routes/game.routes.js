@@ -28,7 +28,7 @@ router.get('/:id/reviews', async (req, res) => {
 
     res.json({
       gameId: id,
-      reviews,
+      reviews
     });
   } catch (err) {
     console.error(err);

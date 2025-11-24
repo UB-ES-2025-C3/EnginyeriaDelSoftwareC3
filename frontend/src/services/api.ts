@@ -1,3 +1,5 @@
+import { create } from "domain";
+
 export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 // ⭐ CAMBIO 1: User completo con avatarUrl, bio, etc.
@@ -39,13 +41,45 @@ type MediaResponse = {
 };
 
 
-export type Review = {
+export interface Review {
   _id: string
-  user: string | { name?: string; avatarUrl?: string }
   game: string
   stars: number
   text: string
   createdAt: string
+  user: {
+    _id: string
+    name?: string
+    avatarUrl?: string
+  }
+}
+
+export interface CreateReviewPayload {
+  stars: number
+  text: string
+}
+
+export interface CreatedReview {
+  _id: string
+  game: string
+  stars: number
+  text: string
+  createdAt: string
+  user: {
+    _id: string
+    name?: string
+    avatarUrl?: string
+  }
+}
+
+export interface CreateReviewResponse {
+  message: string
+  review: CreatedReview
+}
+
+export interface GameReviewsResponse {
+  gameId: string
+  reviews: Review[]
 }
 
 export type Game = {
@@ -123,4 +157,16 @@ export const api = {
 
   // Ressenyes
   getAllReviews: () => http<Review[]>("/api/reviews"),
+
+  createReview: (token: string, gameId: string, payload: CreateReviewPayload) =>
+    http<CreateReviewResponse>(`/api/reviews/${gameId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  }),
+
+  getGameReviews: (gameId: string) => http<GameReviewsResponse>(`/api/games/${gameId}/reviews`),
 };
