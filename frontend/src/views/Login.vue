@@ -7,7 +7,7 @@
         <p class="text-sm md:text-base text-white font-bold uppercase tracking-wide mb-2">
           Checkpoint
         </p>
-        <h2 class="text-4xl md:text-5xl font-extrabold mb-2">Iniciar sessió FUNCIONA</h2>
+        <h2 class="text-4xl md:text-5xl font-extrabold mb-2">Iniciar sessió</h2>
         <p class="text-gray-400 text-sm">Benvingut de nou al teu espai gamer</p>
       </div>
 
