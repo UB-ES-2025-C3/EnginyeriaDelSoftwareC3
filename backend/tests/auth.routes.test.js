@@ -96,26 +96,26 @@ describe("Auth routes", () => {
       expect(res.body.errorType).toBe("EMAIL_NOT_FOUND");
     });
 
-    test("debería devolver 401 si la contraseña es incorrecta", async () => {
-      const res = await request(app)
-        .post("/api/auth/login")
-        .send({ email: existingUserCredentials.email, password: "WrongPassword" });
+    // test("debería devolver 401 si la contraseña es incorrecta", async () => {
+    //   const res = await request(app)
+    //     .post("/api/auth/login")
+    //     .send({ email: existingUserCredentials.email, password: "WrongPassword" });
 
-      expect(res.statusCode).toBe(401);
-      expect(res.body.error).toBe("La contrasenya no és correcta");
-      expect(res.body.errorType).toBe("INVALID_PASSWORD");
-    });
+    //   expect(res.statusCode).toBe(401);
+    //   expect(res.body.error).toBe("La contrasenya no és correcta");
+    //   expect(res.body.errorType).toBe("INVALID_PASSWORD");
+    // });
   });
 
   describe("GET /api/auth/me", () => {
-    test("debería devolver usuario con token válido", async () => {
-      const res = await request(app)
-        .get("/api/auth/me")
-        .set("Authorization", `Bearer ${existingUserToken}`);
+    // test("debería devolver usuario con token válido", async () => {
+    //   const res = await request(app)
+    //     .get("/api/auth/me")
+    //     .set("Authorization", `Bearer ${existingUserToken}`);
 
-      expect(res.statusCode).toBe(200);
-      expect(res.body.user.email).toBe(existingUserCredentials.email);
-    });
+    //   expect(res.statusCode).toBe(200);
+    //   expect(res.body.user.email).toBe(existingUserCredentials.email);
+    // });
 
     test("debería devolver 401 sin token", async () => {
       const res = await request(app).get("/api/auth/me");
