@@ -59,6 +59,17 @@ describe('CatalegJocs.vue', () => {
     it('debería renderizar una lista de juegos cuando la API devuelve datos', async () => {
       // Mockeamos la API para que devuelva nuestros juegos de prueba
       vi.mocked(api.getGames).mockResolvedValue(createResponse());
+      
+      // Mockeamos la API de reviews para que devuelva datos consistentes
+      vi.mocked(api.getGameReviews).mockImplementation(async (gameId) => {
+        if (gameId === '1') {
+          return { reviews: new Array(120).fill({}) } as GameReviewsResponse;
+        }
+        if (gameId === '2') {
+          return { reviews: new Array(200).fill({}) } as GameReviewsResponse;
+        }
+        return { reviews: [] } as GameReviewsResponse;
+      });
 
       const wrapper = mount(CatalegJocs, {
         global: {
@@ -76,10 +87,14 @@ describe('CatalegJocs.vue', () => {
       const gameCards = wrapper.findAllComponents(GameCardMini);
       expect(gameCards.length).toBe(mockGames.length);
 
-      // Comprobamos que las props se pasan correctamente al primer GameCardMini
-      expect(gameCards[0].props('name')).toBe('The Witcher 3');
-      expect(gameCards[0].props('genre')).toBe('RPG');
-      expect(gameCards[0].props('reviewCount')).toBe(120);
+      // Comprobamos que las props se pasan correctamente (en el orden de sort)
+      expect(gameCards[0].props('name')).toBe('Red Dead Redemption 2');
+      expect(gameCards[0].props('genre')).toBe('Action');
+      expect(gameCards[0].props('reviewCount')).toBe(200);
+
+      expect(gameCards[1].props('name')).toBe('The Witcher 3');
+      expect(gameCards[1].props('genre')).toBe('RPG');
+      expect(gameCards[1].props('reviewCount')).toBe(120);
     });
   });
 

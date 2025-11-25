@@ -10,6 +10,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/login', name: 'login', component: { template: '<div />' } },
   { path: '/perfil', name: 'perfil', component: { template: '<div />' } },
   { path: '/game/:id', name: 'game', component: { template: '<div />' } },
+  { path: '/reviews', name: 'reviews', component: { template: '<div />' } },
 ]
 
 export const makeTestRouter = () =>
