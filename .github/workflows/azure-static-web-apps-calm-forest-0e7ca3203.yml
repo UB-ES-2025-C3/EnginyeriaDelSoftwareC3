@@ -13,6 +13,7 @@ on:
 jobs:
   # --- Primer de tot executar els tests ---
   test-frontend:
+    name: Tests frontend
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -33,6 +34,33 @@ jobs:
 
       - name: Run frontend unit tests
         run: npm run test:unit
+
+  # TESTS BACKEND
+  test-backend:
+    name: Tests backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend 
+
+    steps:
+      - name: Checkout del repositori
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json 
+
+      - name: Instal·lar dependències backend
+        run: npm ci
+
+      - name: Executar tests backend
+        run: npm test
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI_TEST }}
 
   # --- Si passen els tests, fer build i pre_deploy o deploy del frontend ---
   build_and_deploy_job:
