@@ -14,11 +14,11 @@
             </router-link>
             
             <nav class="hidden lg:flex items-center gap-6">
-              <button class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
+              <router-link to="/reviews" class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
                 <span class="text-sm">👥</span> Comunitat
-              </button>
+              </router-link>
               <router-link to="/contacte" class="flex items-center gap-2 text-purple-400 font-medium whitespace-nowrap">
-                <span class="text-sm">❓</span> Suport
+                <span class="text-sm">❓</span> Contacte
               </router-link>
             </nav>
           </div>
