@@ -64,8 +64,11 @@ jobs:
 
   # --- Si passen els tests, fer build i pre_deploy o deploy del frontend ---
   build_and_deploy_job:
+    name: Build i deploy frontend a Staging
     runs-on: ubuntu-latest
-    needs: test-frontend
+    needs: 
+        - test-frontend
+        - test-backend
     if: github.ref != 'refs/heads/dev'
     permissions:
       id-token: write
