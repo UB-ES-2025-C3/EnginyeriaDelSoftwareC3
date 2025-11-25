@@ -10,19 +10,46 @@ import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.routes.js';
 import profileRoutes from './routes/profile.routes.js';
 import gameRoutes from './routes/game.routes.js';
+import reviewRoutes from './routes/review.routes.js';
+import solicitudRoutes from './routes/solicitud.routes.js';
 
 const app = express();
 app.set('trust proxy', 1);
 export { app };
 
 app.use(helmet());
-app.use(cors({ origin: env.corsOrigin, credentials: true }));
+
+
+// Frontends que tenen permís
+const allowedOrigins = [
+  'https://calm-forest-0e7ca3203.3.azurestaticapps.net', 
+  'https://witty-bay-0f8f41603.3.azurestaticapps.net', 
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:4000',
+  env.corsOrigin                                    
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      // Si no és a la llista, rebutja-la
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 
 app.use('/api/auth', rateLimit({ windowMs: 60_000, max: 20 }));
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/games', gameRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api', solicitudRoutes);
 
 app.get('/health', (_, res) => res.json({ ok: true }));
 
