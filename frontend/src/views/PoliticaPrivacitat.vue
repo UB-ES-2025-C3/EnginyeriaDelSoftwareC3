@@ -24,14 +24,6 @@
                   @keyup.enter.prevent="handleSearchSubmit"
                   class="w-full bg-gray-800 border border-gray-700 rounded-full pl-12 pr-5 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all hover:bg-gray-750" />
               </div>
-              <button type="button"
-                class="w-11 h-11 rounded-full bg-gray-800 border border-gray-700 hover:bg-gray-700 flex items-center justify-center transition-colors"
-                aria-label="Obrir filtres" @click="filterPanelOpen = true">
-                <svg viewBox="0 0 24 24" class="w-5 h-5 text-purple-300" fill="none" stroke="currentColor"
-                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M3 4h18L14 12v6l-4-2v-4L3 4z" />
-                </svg>
-              </button>
             </div>
 
             <div v-if="showSearchDropdown && searchResults.length > 0"
