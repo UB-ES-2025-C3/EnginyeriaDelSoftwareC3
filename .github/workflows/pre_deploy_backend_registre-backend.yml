@@ -6,7 +6,7 @@ name: Build and deploy Node.js app to Azure Web App - registre-backend
 on:
   push:
     branches:
-      - pre_deploy_backend   # rama donde haces push del backend
+      - pre_deploy   # rama donde haces push del backend
   workflow_dispatch:
 
 jobs:
