@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD
+name: Pre_deploy Frontend to Azure Static Web Apps
 
 # --- TRIGGERS WORKFLOWS ---
 on:
