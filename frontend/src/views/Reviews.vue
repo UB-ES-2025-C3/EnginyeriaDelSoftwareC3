@@ -12,12 +12,14 @@
               </div>
               <span class="font-bold text-xl hidden sm:block">CheckPoint</span>
             </router-link>
-            
+
             <nav class="hidden lg:flex items-center gap-6">
-              <router-link to="/reviews" class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
+              <router-link to="/reviews"
+                class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
                 <span class="text-sm">👥</span> Comunitat
               </router-link>
-              <router-link to="/contacte" class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
+              <router-link to="/contacte"
+                class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
                 <span class="text-sm">❓</span> Contacte
               </router-link>
             </nav>
@@ -27,29 +29,17 @@
           <div class="relative">
             <div class="relative max-w-lg mx-auto">
               <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">🔍</span>
-              <input
-                type="text"
-                placeholder="Buscar jocs..."
-                v-model="searchQuery"
-                @input="handleSearch"
-                @focus="showSearchDropdown = searchQuery.length > 0"
-                @blur="hideDropdown"
-                class="w-full bg-gray-800 border border-gray-700 rounded-full pl-12 pr-5 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all hover:bg-gray-750"
-              />
+              <input type="text" placeholder="Buscar jocs..." v-model="searchQuery" @input="handleSearch"
+                @focus="showSearchDropdown = searchQuery.length > 0" @blur="hideDropdown"
+                class="w-full bg-gray-800 border border-gray-700 rounded-full pl-12 pr-5 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all hover:bg-gray-750" />
             </div>
 
             <!-- Dropdown de búsqueda (aquí vacío, pero mantenemos el markup) -->
-            <div
-              v-if="showSearchDropdown && filteredGames.length > 0"
-              class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50"
-            >
-              <router-link
-                v-for="game in filteredGames"
-                :key="game.id"
-                :to="`/game/${game.id}`"
+            <div v-if="showSearchDropdown && filteredGames.length > 0"
+              class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50">
+              <router-link v-for="game in filteredGames" :key="game.id" :to="`/game/${game.id}`"
                 class="flex items-center gap-3 p-3 hover:bg-gray-700 cursor-pointer transition-colors"
-                @click="closeDropdown"
-              >
+                @click="closeDropdown">
                 <img :src="game.image" :alt="game.name" class="w-12 h-16 object-cover rounded" />
                 <div class="flex-1">
                   <p class="font-semibold text-white">{{ game.name }}</p>
@@ -58,10 +48,8 @@
               </router-link>
             </div>
 
-            <div
-              v-if="showSearchDropdown && searchQuery && filteredGames.length === 0"
-              class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 text-center text-gray-400 z-50"
-            >
+            <div v-if="showSearchDropdown && searchQuery && filteredGames.length === 0"
+              class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 text-center text-gray-400 z-50">
               No s'han trobat jocs.
             </div>
           </div>
@@ -69,64 +57,40 @@
           <!-- DERECHA: User actions -->
           <div class="flex items-center justify-end gap-4">
             <!-- ⭐ AVATAR DEL USUARIO -->
-            <router-link
-              v-if="isLoggedIn"
-              to="/perfil"
+            <router-link v-if="isLoggedIn" to="/perfil"
               class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors overflow-hidden border-2 border-gray-700 hover:border-purple-500"
-              title="Veure perfil"
-            >
-              <img
-                v-if="userAvatar"
-                :src="userAvatar"
-                :alt="userName"
-                class="w-full h-full object-cover"
-              />
+              title="Veure perfil">
+              <img v-if="userAvatar" :src="userAvatar" :alt="userName" class="w-full h-full object-cover" />
               <span v-else class="text-sm font-bold">{{ userInitials }}</span>
             </router-link>
 
-            <router-link
-              v-else
-              to="/login"
+            <router-link v-else to="/login"
               class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors"
-              title="Iniciar sessió"
-            >
+              title="Iniciar sessió">
               <span class="text-xl">👤</span>
             </router-link>
 
             <!-- Menú -->
             <div class="relative" ref="menuRef">
-              <button
-                @click="showMenu = !showMenu"
-                class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors"
-              >
+              <button @click="showMenu = !showMenu"
+                class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
                 <span class="text-xl">⚙️</span>
               </button>
 
-              <div
-                v-if="showMenu"
-                class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl py-2 z-50"
-              >
-                <router-link
-                  v-if="isLoggedIn"
-                  to="/perfil"
+              <div v-if="showMenu"
+                class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl py-2 z-50">
+                <router-link v-if="isLoggedIn" to="/perfil"
                   class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                  @click="showMenu = false"
-                >
+                  @click="showMenu = false">
                   📝 Editar perfil
                 </router-link>
-                <button
-                  v-if="isLoggedIn"
-                  @click="handleLogout"
-                  class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                >
+                <button v-if="isLoggedIn" @click="handleLogout"
+                  class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
                   🚪 Tancar sessió
                 </button>
-                <router-link
-                  v-else
-                  to="/login"
+                <router-link v-else to="/login"
                   class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                  @click="showMenu = false"
-                >
+                  @click="showMenu = false">
                   🔑 Iniciar sessió
                 </router-link>
               </div>
@@ -150,22 +114,14 @@
         </div>
 
         <div v-else class="space-y-4">
-          <article
-            v-for="(review, i) in reviews"
-            :key="review._id || i"
-            class="flex items-start gap-4 bg-gray-900/80 p-4 rounded-lg border border-gray-800"
-          >
+          <article v-for="(review, i) in reviews" :key="review._id || i"
+            class="flex items-start gap-4 bg-gray-900/80 p-4 rounded-lg border border-gray-800">
             <!-- Avatar -->
             <div class="flex-shrink-0">
               <div
-                class="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex items-center justify-center text-sm font-medium text-white"
-              >
-                <img
-                  v-if="review.user?.avatarUrl"
-                  :src="review.user.avatarUrl"
-                  :alt="review.user?.name || 'Avatar'"
-                  class="w-full h-full object-cover"
-                />
+                class="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex items-center justify-center text-sm font-medium text-white">
+                <img v-if="review.user?.avatarUrl" :src="review.user.avatarUrl" :alt="review.user?.name || 'Avatar'"
+                  class="w-full h-full object-cover" />
                 <span v-else>
                   {{ review.user?.name ? review.user.name[0].toUpperCase() : 'U' }}
                 </span>
@@ -193,16 +149,8 @@
               <!-- Estrellas -->
               <div class="flex items-center gap-2 mb-1">
                 <div class="flex items-center gap-1">
-                  <Star
-                    v-for="n in review.stars"
-                    :key="`rfull-${i}-${n}`"
-                    class="w-4 h-4 fill-yellow-400"
-                  />
-                  <Star
-                    v-for="n in 5 - review.stars"
-                    :key="`rempty-${i}-${n}`"
-                    class="w-4 h-4 fill-gray-600"
-                  />
+                  <Star v-for="n in review.stars" :key="`rfull-${i}-${n}`" class="w-4 h-4 fill-yellow-400" />
+                  <Star v-for="n in 5 - review.stars" :key="`rempty-${i}-${n}`" class="w-4 h-4 fill-gray-600" />
                 </div>
               </div>
 
@@ -218,7 +166,7 @@
 
     <!-- FOOTER -->
     <FooterComponent />
-    
+
   </div>
 </template>
 

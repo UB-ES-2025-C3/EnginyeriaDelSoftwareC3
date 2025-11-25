@@ -12,27 +12,25 @@
               </div>
               <span class="font-bold text-xl hidden sm:block">CheckPoint</span>
             </router-link>
-            
-            <nav class="hidden lg:flex items-center gap-6">
-              <router-link to="/reviews" class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
-                <span class="text-sm">👥</span> Comunitat
-              </router-link>
-              <router-link to="/contacte" class="flex items-center gap-2 text-purple-400 font-medium whitespace-nowrap">
-                <span class="text-sm">❓</span> Contacte
-              </router-link>
-            </nav>
+
+            <NavBarComponent />
           </div>
 
           <!-- CENTRO: Buscador -->
           <div class="relative">
             <div class="relative max-w-lg mx-auto">
               <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">🔍</span>
-              <input type="text" placeholder="Buscar jocs..." v-model="searchQuery" @input="handleSearch" @focus="showSearchDropdown = searchQuery.length > 0" @blur="hideDropdown" class="w-full bg-gray-800 border border-gray-700 rounded-full pl-12 pr-5 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all hover:bg-gray-750" />
+              <input type="text" placeholder="Buscar jocs..." v-model="searchQuery" @input="handleSearch"
+                @focus="showSearchDropdown = searchQuery.length > 0" @blur="hideDropdown"
+                class="w-full bg-gray-800 border border-gray-700 rounded-full pl-12 pr-5 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all hover:bg-gray-750" />
             </div>
 
             <!-- Dropdown de búsqueda -->
-            <div v-if="showSearchDropdown && filteredGames.length > 0" class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50">
-              <router-link v-for="game in filteredGames" :key="game.id" :to="`/game/${game.id}`" class="flex items-center gap-3 p-3 hover:bg-gray-700 cursor-pointer transition-colors" @click="closeDropdown">
+            <div v-if="showSearchDropdown && filteredGames.length > 0"
+              class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50">
+              <router-link v-for="game in filteredGames" :key="game.id" :to="`/game/${game.id}`"
+                class="flex items-center gap-3 p-3 hover:bg-gray-700 cursor-pointer transition-colors"
+                @click="closeDropdown">
                 <img :src="game.image" :alt="game.name" class="w-12 h-16 object-cover rounded" />
                 <div class="flex-1">
                   <p class="font-semibold text-white">{{ game.name }}</p>
@@ -42,7 +40,8 @@
             </div>
 
             <!-- Mensaje cuando no hay resultados -->
-            <div v-if="showSearchDropdown && searchQuery && filteredGames.length === 0" class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 text-center text-gray-400 z-50">
+            <div v-if="showSearchDropdown && searchQuery && filteredGames.length === 0"
+              class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 text-center text-gray-400 z-50">
               No s'han trobat jocs.
             </div>
           </div>
@@ -50,31 +49,42 @@
           <!-- DERECHA: User actions -->
           <div class="flex items-center justify-end gap-4">
             <!-- Avatar del usuario -->
-            <router-link v-if="isLoggedIn" to="/perfil" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors overflow-hidden border-2 border-gray-700 hover:border-purple-500" title="Veure perfil">
+            <router-link v-if="isLoggedIn" to="/perfil"
+              class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors overflow-hidden border-2 border-gray-700 hover:border-purple-500"
+              title="Veure perfil">
               <img v-if="userAvatar" :src="userAvatar" :alt="userName" class="w-full h-full object-cover" />
               <span v-else class="text-sm font-bold">{{ userInitials }}</span>
             </router-link>
 
             <!-- Si no está autenticado -->
-            <router-link v-else to="/login" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors" title="Iniciar sessió">
+            <router-link v-else to="/login"
+              class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors"
+              title="Iniciar sessió">
               <span class="text-xl">👤</span>
             </router-link>
 
             <!-- Botón de configuración / logout -->
             <div class="relative" ref="menuRef">
-              <button @click="showMenu = !showMenu" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
+              <button @click="showMenu = !showMenu"
+                class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
                 <span class="text-xl">⚙️</span>
               </button>
 
               <!-- Dropdown menu -->
-              <div v-if="showMenu" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl py-2 z-50">
-                <router-link v-if="isLoggedIn" to="/perfil" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors" @click="showMenu = false">
+              <div v-if="showMenu"
+                class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl py-2 z-50">
+                <router-link v-if="isLoggedIn" to="/perfil"
+                  class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                  @click="showMenu = false">
                   📝 Editar perfil
                 </router-link>
-                <button v-if="isLoggedIn" @click="handleLogout" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+                <button v-if="isLoggedIn" @click="handleLogout"
+                  class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
                   🚪 Tancar sessió
                 </button>
-                <router-link v-else to="/login" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors" @click="showMenu = false">
+                <router-link v-else to="/login"
+                  class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                  @click="showMenu = false">
                   🔑 Iniciar sessió
                 </router-link>
               </div>
@@ -88,7 +98,8 @@
     <div class="max-w-5xl mx-auto px-4 py-12">
       <!-- Hero Section -->
       <div class="text-center mb-12">
-        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
+        <h1
+          class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
           Preguntes Freqüents
         </h1>
         <p class="text-gray-400 text-lg max-w-2xl mx-auto">
@@ -100,41 +111,27 @@
       <div class="mb-8">
         <div class="relative max-w-2xl mx-auto">
           <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">🔍</span>
-          <input 
-            type="text" 
-            v-model="faqSearch"
-            placeholder="Cerca en les FAQs..." 
-            class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-12 pr-5 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-          />
+          <input type="text" v-model="faqSearch" placeholder="Cerca en les FAQs..."
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-12 pr-5 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
         </div>
       </div>
 
       <!-- Categorías -->
       <div class="flex flex-wrap gap-3 justify-center mb-10">
-        <button
-          v-for="cat in categories"
-          :key="cat"
-          @click="selectedCategory = cat"
-          class="px-5 py-2 rounded-full font-semibold text-sm transition-all"
-          :class="selectedCategory === cat 
-            ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white' 
-            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'"
-        >
+        <button v-for="cat in categories" :key="cat" @click="selectedCategory = cat"
+          class="px-5 py-2 rounded-full font-semibold text-sm transition-all" :class="selectedCategory === cat
+            ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white'
+            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'">
           {{ cat }}
         </button>
       </div>
 
       <!-- Lista de FAQs -->
       <div class="space-y-4">
-        <div
-          v-for="(faq, index) in filteredFaqs"
-          :key="index"
-          class="bg-gray-900 rounded-lg overflow-hidden border border-gray-800 hover:border-purple-500/50 transition-all"
-        >
-          <button
-            @click="toggleFaq(index)"
-            class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-800/50 transition-colors"
-          >
+        <div v-for="(faq, index) in filteredFaqs" :key="index"
+          class="bg-gray-900 rounded-lg overflow-hidden border border-gray-800 hover:border-purple-500/50 transition-all">
+          <button @click="toggleFaq(index)"
+            class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-800/50 transition-colors">
             <div class="flex items-start gap-4 flex-1">
               <span class="text-2xl flex-shrink-0">{{ faq.icon }}</span>
               <div class="flex-1">
@@ -142,14 +139,16 @@
                 <span class="text-xs text-purple-400 mt-1 inline-block">{{ faq.category }}</span>
               </div>
             </div>
-            <span class="text-gray-400 text-xl transition-transform duration-300" :class="{ 'rotate-180': openFaq === index }">
+            <span class="text-gray-400 text-xl transition-transform duration-300"
+              :class="{ 'rotate-180': openFaq === index }">
               ▼
             </span>
           </button>
-          
+
           <transition name="accordion">
             <div v-if="openFaq === index" class="px-6 pb-6 pt-2">
-              <div class="text-gray-300 leading-relaxed border-l-4 border-purple-500 pl-6 py-2 bg-gray-800/30 rounded-r">
+              <div
+                class="text-gray-300 leading-relaxed border-l-4 border-purple-500 pl-6 py-2 bg-gray-800/30 rounded-r">
                 <p v-html="faq.answer"></p>
               </div>
             </div>
@@ -167,13 +166,12 @@
       </div>
 
       <!-- CTA Final -->
-      <div class="mt-16 bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-500/30 rounded-2xl p-8 text-center">
+      <div
+        class="mt-16 bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-500/30 rounded-2xl p-8 text-center">
         <h2 class="text-2xl font-bold mb-3">No has trobat el que buscaves?</h2>
         <p class="text-gray-300 mb-6">Envia'ns la teva consulta i t'ajudarem encantats</p>
-        <router-link 
-          to="/contacte" 
-          class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold rounded-lg transition-all shadow-lg hover:shadow-xl"
-        >
+        <router-link to="/contacte"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold rounded-lg transition-all shadow-lg hover:shadow-xl">
           <span>💬</span>
           <span>Contacta amb nosaltres</span>
         </router-link>
@@ -190,6 +188,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { auth } from '@/services/auth'
 import FooterComponent from '@/components/FooterComponent.vue'
+import NavBarComponent from '@/components/NavBarComponent.vue'
 
 // Tipos
 interface GameSearchResult {
@@ -392,7 +391,7 @@ const filteredFaqs = computed(() => {
   // Filtrar por búsqueda
   if (faqSearch.value.trim()) {
     const search = faqSearch.value.toLowerCase()
-    result = result.filter(faq => 
+    result = result.filter(faq =>
       faq.question.toLowerCase().includes(search) ||
       faq.answer.toLowerCase().includes(search)
     )

@@ -11,54 +11,34 @@
               <span class="font-bold text-xl hidden sm:block">CheckPoint</span>
             </router-link>
 
-            <nav class="hidden lg:flex items-center gap-6">
-              <router-link to="/reviews" class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
-                <span class="text-sm">👥</span> Comunitat
-              </router-link>
-              <router-link to="/contacte" class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
-                <span class="text-sm">❓</span> Contacte
-              </router-link>
-            </nav>
+            <NavBarComponent />
+
           </div>
 
           <div class="relative">
             <div class="relative max-w-lg mx-auto flex items-center gap-3">
               <div class="relative flex-1">
                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">🔍</span>
-                <input
-                  type="text"
-                  placeholder="Buscar jocs..."
-                  v-model="searchQuery"
-                  @input="handleSearch"
-                  @focus="showSearchDropdown = searchQuery.trim().length > 0"
-                  @blur="hideDropdown"
+                <input type="text" placeholder="Buscar jocs..." v-model="searchQuery" @input="handleSearch"
+                  @focus="showSearchDropdown = searchQuery.trim().length > 0" @blur="hideDropdown"
                   @keyup.enter.prevent="handleSearchSubmit"
-                  class="w-full bg-gray-800 border border-gray-700 rounded-full pl-12 pr-5 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all hover:bg-gray-750"
-                />
+                  class="w-full bg-gray-800 border border-gray-700 rounded-full pl-12 pr-5 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all hover:bg-gray-750" />
               </div>
-              <button
-                type="button"
+              <button type="button"
                 class="w-11 h-11 rounded-full bg-gray-800 border border-gray-700 hover:bg-gray-700 flex items-center justify-center transition-colors"
-                aria-label="Obrir filtres"
-                @click="filterPanelOpen = true"
-              >
-                <svg viewBox="0 0 24 24" class="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M3 4h18L14 12v6l-4-2v-4L3 4z"/>
+                aria-label="Obrir filtres" @click="filterPanelOpen = true">
+                <svg viewBox="0 0 24 24" class="w-5 h-5 text-purple-300" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 4h18L14 12v6l-4-2v-4L3 4z" />
                 </svg>
               </button>
             </div>
 
-            <div
-              v-if="showSearchDropdown && searchResults.length > 0"
-              class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50"
-            >
-              <router-link
-                v-for="game in searchResults"
-                :key="game.id"
-                :to="`/game/${game.id}`"
+            <div v-if="showSearchDropdown && searchResults.length > 0"
+              class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50">
+              <router-link v-for="game in searchResults" :key="game.id" :to="`/game/${game.id}`"
                 class="flex items-center gap-3 p-3 hover:bg-gray-700 cursor-pointer transition-colors"
-                @click="closeDropdown"
-              >
+                @click="closeDropdown">
                 <img :src="game.image" :alt="game.name" class="w-12 h-16 object-cover rounded" />
                 <div class="flex-1">
                   <p class="font-semibold text-white">{{ game.name }}</p>
@@ -67,61 +47,46 @@
               </router-link>
             </div>
 
-            <div
-              v-if="showSearchDropdown && searchQuery && searchResults.length === 0"
-              class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 text-center text-gray-400 z-50"
-            >
+            <div v-if="showSearchDropdown && searchQuery && searchResults.length === 0"
+              class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 text-center text-gray-400 z-50">
               No s'han trobat jocs.
             </div>
           </div>
 
           <div class="flex items-center justify-end gap-4">
-            <router-link
-              v-if="isLoggedIn"
-              to="/perfil"
+            <router-link v-if="isLoggedIn" to="/perfil"
               class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors overflow-hidden border-2 border-gray-700 hover:border-purple-500"
-              title="Veure perfil"
-            >
+              title="Veure perfil">
               <img v-if="userAvatar" :src="userAvatar" :alt="userName" class="w-full h-full object-cover" />
               <span v-else class="text-sm font-bold">{{ userInitials }}</span>
             </router-link>
 
-            <router-link
-              v-else
-              to="/login"
+            <router-link v-else to="/login"
               class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors"
-              title="Iniciar sessió"
-            >
+              title="Iniciar sessió">
               <span class="text-xl">👤</span>
             </router-link>
 
             <div class="relative" ref="menuRef">
-              <button @click="showMenu = !showMenu" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
+              <button @click="showMenu = !showMenu"
+                class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
                 <span class="text-xl">⚙️</span>
               </button>
 
-              <div v-if="showMenu" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl py-2 z-50">
-                <router-link
-                  v-if="isLoggedIn"
-                  to="/perfil"
+              <div v-if="showMenu"
+                class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl py-2 z-50">
+                <router-link v-if="isLoggedIn" to="/perfil"
                   class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                  @click="showMenu = false"
-                >
+                  @click="showMenu = false">
                   📝 Editar perfil
                 </router-link>
-                <button
-                  v-if="isLoggedIn"
-                  @click="handleLogout"
-                  class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                >
+                <button v-if="isLoggedIn" @click="handleLogout"
+                  class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
                   🚪 Tancar sessió
                 </button>
-                <router-link
-                  v-else
-                  to="/login"
+                <router-link v-else to="/login"
                   class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                  @click="showMenu = false"
-                >
+                  @click="showMenu = false">
                   🔑 Iniciar sessió
                 </router-link>
               </div>
@@ -132,16 +97,19 @@
     </header>
 
     <div class="relative h-[280px] md:h-[320px] overflow-hidden">
-      <img src="../assets/background_image.jpg" alt="Hero" class="w-full h-full object-cover object-center scale-105" style="object-position: center 60%;" />
+      <img src="../assets/background_image.jpg" alt="Hero" class="w-full h-full object-cover object-center scale-105"
+        style="object-position: center 60%;" />
       <div class="absolute inset-0 bg-gradient-to-b from-gray-900/70 via-gray-900/50 to-gray-900" />
       <div class="absolute inset-0 bg-gradient-to-b from-purple-500/10 via-transparent to-transparent" />
       <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
         <div class="space-y-3 max-w-3xl">
           <h1 class="text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-white">Catàleg de Jocs</h1>
-          <p class="text-base md:text-lg text-gray-300 font-medium">Descobreix i valora els millors títols de la comunitat</p>
+          <p class="text-base md:text-lg text-gray-300 font-medium">Descobreix i valora els millors títols de la
+            comunitat</p>
         </div>
       </div>
-      <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+      <div
+        class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
     </div>
 
     <div class="max-w-7xl mx-auto px-4 py-12">
@@ -152,21 +120,15 @@
 
       <div class="mb-6">
         <div v-if="activeFilters.length" class="flex flex-wrap gap-2">
-          <button
-            v-for="filter in activeFilters"
-            :key="`${filter.type}-${filter.value ?? 'search'}`"
+          <button v-for="filter in activeFilters" :key="`${filter.type}-${filter.value ?? 'search'}`"
             class="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-400/40 text-sm px-3 py-1 rounded-full text-purple-100 hover:bg-purple-500/20 transition-colors"
-            @click="removeFilter(filter)"
-            type="button"
-          >
+            @click="removeFilter(filter)" type="button">
             <span>{{ filter.label }}</span>
             <span class="text-xs">&times;</span>
           </button>
-          <button
-            type="button"
+          <button type="button"
             class="inline-flex items-center gap-2 text-xs uppercase tracking-wide text-gray-400 hover:text-white"
-            @click="clearFilters"
-          >
+            @click="clearFilters">
             Netejar filtres
           </button>
         </div>
@@ -179,18 +141,9 @@
 
       <template v-else>
         <div v-if="games.length" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          <GameCardMini
-            v-for="game in games"
-            :key="game.id"
-            :id="game.id"
-            :image="game.image"
-            :name="game.name"
-            :genre="game.genre"
-            :year="game.year"
-            :platform="game.platform"
-            :average-rating="game.averageRating"
-            :review-count="game.reviewCount"
-          />
+          <GameCardMini v-for="game in games" :key="game.id" :id="game.id" :image="game.image" :name="game.name"
+            :genre="game.genre" :year="game.year" :platform="game.platform" :average-rating="game.averageRating"
+            :review-count="game.reviewCount" />
         </div>
 
         <div v-else class="text-center py-20">
@@ -204,7 +157,8 @@
 
     <div v-if="filterPanelOpen" class="fixed inset-0 z-50 flex">
       <div class="absolute inset-0 bg-black/60" @click="filterPanelOpen = false"></div>
-      <div class="relative z-10 ml-auto h-full w-full max-w-md bg-gray-900 border-l border-gray-800 shadow-2xl flex flex-col">
+      <div
+        class="relative z-10 ml-auto h-full w-full max-w-md bg-gray-900 border-l border-gray-800 shadow-2xl flex flex-col">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-800">
           <div>
             <p class="text-lg font-semibold">Filtres avançats</p>
@@ -217,11 +171,8 @@
         <div class="flex-1 overflow-y-auto px-6 py-6 space-y-6">
           <div>
             <p class="text-sm font-semibold text-gray-300 mb-2">Ordenar per</p>
-            <select
-              v-model="selectedSort"
-              @change="handleSortChange"
-              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
+            <select v-model="selectedSort" @change="handleSortChange"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
               <option v-for="option in sortOptions" :key="option.value" :value="option.value">
                 {{ option.label }}
               </option>
@@ -231,22 +182,11 @@
           <div>
             <p class="text-sm font-semibold text-gray-300 mb-3">Gèneres</p>
             <div v-if="availableGenres.length" class="flex flex-wrap gap-2">
-              <label
-                v-for="genre in availableGenres"
-                :key="genre"
-                class="cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  class="sr-only"
-                  :value="genre"
-                  v-model="selectedGenres"
-                  @change="handleGenreChange"
-                />
-                <span
-                  class="inline-flex items-center px-3 py-1 rounded-full border text-sm transition-colors"
-                  :class="selectedGenres.includes(genre) ? 'bg-purple-600 border-purple-500 text-white' : 'border-gray-700 text-gray-300 hover:bg-gray-800'"
-                >
+              <label v-for="genre in availableGenres" :key="genre" class="cursor-pointer">
+                <input type="checkbox" class="sr-only" :value="genre" v-model="selectedGenres"
+                  @change="handleGenreChange" />
+                <span class="inline-flex items-center px-3 py-1 rounded-full border text-sm transition-colors"
+                  :class="selectedGenres.includes(genre) ? 'bg-purple-600 border-purple-500 text-white' : 'border-gray-700 text-gray-300 hover:bg-gray-800'">
                   {{ genre }}
                 </span>
               </label>
@@ -257,22 +197,11 @@
           <div>
             <p class="text-sm font-semibold text-gray-300 mb-3">Plataformes</p>
             <div v-if="availablePlatforms.length" class="flex flex-wrap gap-2">
-              <label
-                v-for="platform in availablePlatforms"
-                :key="platform"
-                class="cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  class="sr-only"
-                  :value="platform"
-                  v-model="selectedPlatforms"
-                  @change="handlePlatformChange"
-                />
-                <span
-                  class="inline-flex items-center px-3 py-1 rounded-full border text-sm transition-colors"
-                  :class="selectedPlatforms.includes(platform) ? 'bg-purple-600 border-purple-500 text-white' : 'border-gray-700 text-gray-300 hover:bg-gray-800'"
-                >
+              <label v-for="platform in availablePlatforms" :key="platform" class="cursor-pointer">
+                <input type="checkbox" class="sr-only" :value="platform" v-model="selectedPlatforms"
+                  @change="handlePlatformChange" />
+                <span class="inline-flex items-center px-3 py-1 rounded-full border text-sm transition-colors"
+                  :class="selectedPlatforms.includes(platform) ? 'bg-purple-600 border-purple-500 text-white' : 'border-gray-700 text-gray-300 hover:bg-gray-800'">
                   {{ platform }}
                 </span>
               </label>
@@ -284,11 +213,8 @@
           <button type="button" class="text-sm text-gray-400 hover:text-white" @click="clearFilters">
             Netejar filtres
           </button>
-          <button
-            type="button"
-            class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm font-semibold"
-            @click="filterPanelOpen = false"
-          >
+          <button type="button" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm font-semibold"
+            @click="filterPanelOpen = false">
             Fet
           </button>
         </div>
@@ -303,7 +229,8 @@ import { useRoute, useRouter } from 'vue-router'
 import GameCardMini from '@/views/GameCardMini.vue'
 import { api, GameSummary } from '@/services/api'
 import { auth } from '@/services/auth'
-import FooterComponent from "@/components/FooterComponent.vue";
+import FooterComponent from "@/components/FooterComponent.vue"
+import NavBarComponent from "@/components/NavBarComponent.vue"
 import { buildGenreMap, buildPlatformMap, type FacetMap } from '@/utils/facets'
 
 const router = useRouter()
@@ -642,7 +569,7 @@ const updateQuery = ({ page, resetPage }: { page?: number; resetPage?: boolean }
 
   if (queryToSearchParams(query) === queryToSearchParams(currentQuery)) return
 
-  router.replace({ path: route.path, query }).catch(() => {})
+  router.replace({ path: route.path, query }).catch(() => { })
 }
 
 const handleSearchSubmit = () => {

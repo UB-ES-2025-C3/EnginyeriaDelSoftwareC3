@@ -23,15 +23,18 @@
             <li>
               <router-link to="/cataleg" class="text-gray-400 hover:text-white transition-colors">Catàleg</router-link>
             </li>
-            <li>
-              <a href="#" class="text-gray-400 hover:text-white transition-colors">Novetats</a>
-            </li>
-            <li>
-              <a href="#" class="text-gray-400 hover:text-white transition-colors">Més valorats</a>
-            </li>
-            <li>
-              <a href="#" class="text-gray-400 hover:text-white transition-colors">Pròxims llançaments</a>
-            </li>
+
+            <template v-if="showUpcomingFeatures">
+              <li>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">Novetats</a>
+              </li>
+              <li>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">Més valorats</a>
+              </li>
+              <li>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">Pròxims llançaments</a>
+              </li>
+            </template>
           </ul>
         </div>
 
@@ -41,11 +44,15 @@
             Comunitat
           </h4>
           <ul class="space-y-2 text-sm">
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Fòrum</a></li>
+
             <li>
-              <router-link to="/reviews" class="text-gray-400 hover:text-white transition-colors">Ressenyes</router-link>
+              <router-link to="/reviews"
+                class="text-gray-400 hover:text-white transition-colors">Ressenyes</router-link>
             </li>
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Esdeveniments</a></li>
+            <template v-if="showUpcomingFeatures">
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Fòrum</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Esdeveniments</a></li>
+            </template>
             <li>
               <a href="https://discord.gg/Xrzh5J8FTm" target="_blank" rel="noopener noreferrer"
                 class="text-gray-400 hover:text-white transition-colors">
@@ -91,4 +98,6 @@
     </div>
   </footer>
 </template>
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const showUpcomingFeatures = false;
+</script>

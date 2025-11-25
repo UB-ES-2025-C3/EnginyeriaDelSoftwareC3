@@ -12,27 +12,25 @@
               </div>
               <span class="font-bold text-xl hidden sm:block">CheckPoint</span>
             </router-link>
-            
-            <nav class="hidden lg:flex items-center gap-6">
-              <router-link to="/reviews" class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
-                <span class="text-sm">👥</span> Comunitat
-              </router-link>
-              <router-link to="/contacte" class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium whitespace-nowrap">
-                <span class="text-sm">❓</span> Contacte
-              </router-link>
-            </nav>
+
+            <NavBarComponent />
           </div>
 
           <!-- CENTRO: Buscador -->
           <div class="relative">
             <div class="relative max-w-lg mx-auto">
               <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">🔍</span>
-              <input type="text" placeholder="Buscar jocs..." v-model="searchQuery" @input="handleSearch" @focus="showSearchDropdown = searchQuery.length > 0" @blur="hideDropdown" class="w-full bg-gray-800 border border-gray-700 rounded-full pl-12 pr-5 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all hover:bg-gray-750" />
+              <input type="text" placeholder="Buscar jocs..." v-model="searchQuery" @input="handleSearch"
+                @focus="showSearchDropdown = searchQuery.length > 0" @blur="hideDropdown"
+                class="w-full bg-gray-800 border border-gray-700 rounded-full pl-12 pr-5 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all hover:bg-gray-750" />
             </div>
 
             <!-- Dropdown de búsqueda -->
-            <div v-if="showSearchDropdown && filteredGames.length > 0" class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50">
-              <router-link v-for="game in filteredGames" :key="game.id" :to="`/game/${game.id}`" class="flex items-center gap-3 p-3 hover:bg-gray-700 cursor-pointer transition-colors" @click="closeDropdown">
+            <div v-if="showSearchDropdown && filteredGames.length > 0"
+              class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50">
+              <router-link v-for="game in filteredGames" :key="game.id" :to="`/game/${game.id}`"
+                class="flex items-center gap-3 p-3 hover:bg-gray-700 cursor-pointer transition-colors"
+                @click="closeDropdown">
                 <img :src="game.image" :alt="game.name" class="w-12 h-16 object-cover rounded" />
                 <div class="flex-1">
                   <p class="font-semibold text-white">{{ game.name }}</p>
@@ -42,7 +40,8 @@
             </div>
 
             <!-- Mensaje cuando no hay resultados -->
-            <div v-if="showSearchDropdown && searchQuery && filteredGames.length === 0" class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 text-center text-gray-400 z-50">
+            <div v-if="showSearchDropdown && searchQuery && filteredGames.length === 0"
+              class="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-lg mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 text-center text-gray-400 z-50">
               No s'han trobat jocs.
             </div>
           </div>
@@ -50,31 +49,42 @@
           <!-- DERECHA: User actions -->
           <div class="flex items-center justify-end gap-4">
             <!-- Avatar del usuario -->
-            <router-link v-if="isLoggedIn" to="/perfil" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors overflow-hidden border-2 border-gray-700 hover:border-purple-500" title="Veure perfil">
+            <router-link v-if="isLoggedIn" to="/perfil"
+              class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors overflow-hidden border-2 border-gray-700 hover:border-purple-500"
+              title="Veure perfil">
               <img v-if="userAvatar" :src="userAvatar" :alt="userName" class="w-full h-full object-cover" />
               <span v-else class="text-sm font-bold">{{ userInitials }}</span>
             </router-link>
 
             <!-- Si no está autenticado -->
-            <router-link v-else to="/login" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors" title="Iniciar sessió">
+            <router-link v-else to="/login"
+              class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors"
+              title="Iniciar sessió">
               <span class="text-xl">👤</span>
             </router-link>
 
             <!-- Botón de configuración / logout -->
             <div class="relative" ref="menuRef">
-              <button @click="showMenu = !showMenu" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
+              <button @click="showMenu = !showMenu"
+                class="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
                 <span class="text-xl">⚙️</span>
               </button>
 
               <!-- Dropdown menu -->
-              <div v-if="showMenu" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl py-2 z-50">
-                <router-link v-if="isLoggedIn" to="/perfil" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors" @click="showMenu = false">
+              <div v-if="showMenu"
+                class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl py-2 z-50">
+                <router-link v-if="isLoggedIn" to="/perfil"
+                  class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                  @click="showMenu = false">
                   📝 Editar perfil
                 </router-link>
-                <button v-if="isLoggedIn" @click="handleLogout" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+                <button v-if="isLoggedIn" @click="handleLogout"
+                  class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
                   🚪 Tancar sessió
                 </button>
-                <router-link v-else to="/login" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors" @click="showMenu = false">
+                <router-link v-else to="/login"
+                  class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                  @click="showMenu = false">
                   🔑 Iniciar sessió
                 </router-link>
               </div>
@@ -89,16 +99,19 @@
       <div class="relative bg-gray-900 rounded-3xl overflow-hidden shadow-2xl p-8 md:p-12 border border-gray-800">
         <!-- Encabezado -->
         <div class="text-center mb-10">
-          <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
+          <h1
+            class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
             Contacta amb nosaltres
           </h1>
           <p class="text-gray-400 text-lg">
-            La teva opinió és important per millorar CheckPoint. Comparteix les teves queixes, suggeriments o comentaris.
+            La teva opinió és important per millorar CheckPoint. Comparteix les teves queixes, suggeriments o
+            comentaris.
           </p>
         </div>
 
         <!-- Mensaje de éxito -->
-        <div v-if="showSuccess" class="mb-6 p-4 bg-green-500/20 border border-green-500/50 rounded-lg flex items-center gap-3 animate-fade-in">
+        <div v-if="showSuccess"
+          class="mb-6 p-4 bg-green-500/20 border border-green-500/50 rounded-lg flex items-center gap-3 animate-fade-in">
           <span class="text-2xl">✅</span>
           <div>
             <p class="font-semibold text-green-400">Missatge enviat correctament!</p>
@@ -107,7 +120,8 @@
         </div>
 
         <!-- Mensaje de error -->
-        <div v-if="showError" class="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center gap-3 animate-fade-in">
+        <div v-if="showError"
+          class="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center gap-3 animate-fade-in">
           <span class="text-2xl">❌</span>
           <div>
             <p class="font-semibold text-red-400">Error a l'enviar el missatge</p>
@@ -122,17 +136,10 @@
             <label for="nombre" class="block text-sm font-semibold mb-2 text-gray-300">
               Nom complet <span class="text-red-400">*</span>
             </label>
-            <input
-              type="text"
-              id="nombre"
-              v-model="formData.nombre"
-              required
-              minlength="2"
-              maxlength="100"
+            <input type="text" id="nombre" v-model="formData.nombre" required minlength="2" maxlength="100"
               placeholder="El teu nom"
               class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-              :class="{ 'border-red-500': errors.nombre }"
-            />
+              :class="{ 'border-red-500': errors.nombre }" />
             <p v-if="errors.nombre" class="text-red-400 text-sm mt-1">{{ errors.nombre }}</p>
           </div>
 
@@ -141,15 +148,9 @@
             <label for="email" class="block text-sm font-semibold mb-2 text-gray-300">
               Correu electrònic <span class="text-red-400">*</span>
             </label>
-            <input
-              type="email"
-              id="email"
-              v-model="formData.email"
-              required
-              placeholder="exemple@correu.com"
+            <input type="email" id="email" v-model="formData.email" required placeholder="exemple@correu.com"
               class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-              :class="{ 'border-red-500': errors.email }"
-            />
+              :class="{ 'border-red-500': errors.email }" />
             <p v-if="errors.email" class="text-red-400 text-sm mt-1">{{ errors.email }}</p>
           </div>
 
@@ -158,12 +159,8 @@
             <label for="tipo" class="block text-sm font-semibold mb-2 text-gray-300">
               Tipus de missatge <span class="text-red-400">*</span>
             </label>
-            <select
-              id="tipo"
-              v-model="formData.tipo"
-              required
-              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all cursor-pointer"
-            >
+            <select id="tipo" v-model="formData.tipo" required
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all cursor-pointer">
               <option value="comentario">💬 Comentari general</option>
               <option value="mejora">💡 Suggeriment de millora</option>
               <option value="queja">⚠️ Queixa o problema</option>
@@ -175,17 +172,10 @@
             <label for="asunto" class="block text-sm font-semibold mb-2 text-gray-300">
               Assumpte <span class="text-red-400">*</span>
             </label>
-            <input
-              type="text"
-              id="asunto"
-              v-model="formData.asunto"
-              required
-              minlength="5"
-              maxlength="150"
+            <input type="text" id="asunto" v-model="formData.asunto" required minlength="5" maxlength="150"
               placeholder="Resum breu del teu missatge"
               class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-              :class="{ 'border-red-500': errors.asunto }"
-            />
+              :class="{ 'border-red-500': errors.asunto }" />
             <p v-if="errors.asunto" class="text-red-400 text-sm mt-1">{{ errors.asunto }}</p>
           </div>
 
@@ -194,17 +184,10 @@
             <label for="mensaje" class="block text-sm font-semibold mb-2 text-gray-300">
               Missatge <span class="text-red-400">*</span>
             </label>
-            <textarea
-              id="mensaje"
-              v-model="formData.mensaje"
-              required
-              minlength="10"
-              maxlength="1000"
-              rows="6"
+            <textarea id="mensaje" v-model="formData.mensaje" required minlength="10" maxlength="1000" rows="6"
               placeholder="Escriu aquí el teu missatge..."
               class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
-              :class="{ 'border-red-500': errors.mensaje }"
-            ></textarea>
+              :class="{ 'border-red-500': errors.mensaje }"></textarea>
             <div class="flex justify-between items-center mt-1">
               <p v-if="errors.mensaje" class="text-red-400 text-sm">{{ errors.mensaje }}</p>
               <p class="text-gray-500 text-sm ml-auto">{{ formData.mensaje.length }}/1000</p>
@@ -219,12 +202,9 @@
             <div class="space-y-3">
               <!-- Botón para seleccionar archivos -->
               <div class="flex items-center gap-3">
-                <button
-                  type="button"
-                  @click="triggerFileInput"
+                <button type="button" @click="triggerFileInput"
                   class="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
-                  :disabled="formData.archivos.length >= 5"
-                >
+                  :disabled="formData.archivos.length >= 5">
                   <span class="text-xl">📎</span>
                   <span class="text-sm">Afegir arxius</span>
                 </button>
@@ -234,18 +214,14 @@
               </div>
 
               <!-- Input oculto -->
-              <input
-                ref="fileInput"
-                type="file"
-                multiple
+              <input ref="fileInput" type="file" multiple
                 accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime"
-                @change="handleFileChange"
-                class="hidden"
-              />
+                @change="handleFileChange" class="hidden" />
 
               <!-- Errores de archivos -->
               <div v-if="fileErrors.length > 0" class="space-y-1">
-                <p v-for="(error, index) in fileErrors" :key="index" class="text-red-400 text-xs flex items-center gap-2">
+                <p v-for="(error, index) in fileErrors" :key="index"
+                  class="text-red-400 text-xs flex items-center gap-2">
                   <span>⚠️</span>
                   <span>{{ error }}</span>
                 </p>
@@ -253,19 +229,13 @@
 
               <!-- Lista de archivos seleccionados -->
               <div v-if="formData.archivos.length > 0" class="space-y-2">
-                <div
-                  v-for="(file, index) in formData.archivos"
-                  :key="index"
-                  class="flex items-center gap-3 bg-gray-800/50 border border-gray-700 rounded-lg p-3"
-                >
+                <div v-for="(file, index) in formData.archivos" :key="index"
+                  class="flex items-center gap-3 bg-gray-800/50 border border-gray-700 rounded-lg p-3">
                   <!-- Preview -->
-                  <div class="flex-shrink-0 w-12 h-12 bg-gray-700 rounded flex items-center justify-center overflow-hidden">
-                    <img
-                      v-if="file.type.startsWith('image/')"
-                      :src="getFilePreview(file)"
-                      :alt="file.name"
-                      class="w-full h-full object-cover"
-                    />
+                  <div
+                    class="flex-shrink-0 w-12 h-12 bg-gray-700 rounded flex items-center justify-center overflow-hidden">
+                    <img v-if="file.type.startsWith('image/')" :src="getFilePreview(file)" :alt="file.name"
+                      class="w-full h-full object-cover" />
                     <span v-else class="text-2xl">🎬</span>
                   </div>
 
@@ -276,12 +246,9 @@
                   </div>
 
                   <!-- Botón eliminar -->
-                  <button
-                    type="button"
-                    @click="removeFile(index)"
+                  <button type="button" @click="removeFile(index)"
                     class="flex-shrink-0 w-8 h-8 rounded-full bg-red-500/20 hover:bg-red-500/30 flex items-center justify-center transition-colors"
-                    title="Eliminar arxiu"
-                  >
+                    title="Eliminar arxiu">
                     <span class="text-red-400">✕</span>
                   </button>
                 </div>
@@ -291,12 +258,10 @@
 
           <!-- Botón de envío -->
           <div class="pt-4">
-            <button
-              type="submit"
-              :disabled="isSubmitting"
-              class="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              <span v-if="isSubmitting" class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <button type="submit" :disabled="isSubmitting"
+              class="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+              <span v-if="isSubmitting"
+                class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               <span v-else>📤</span>
               <span>{{ isSubmitting ? 'Enviant...' : 'Enviar missatge' }}</span>
             </button>
@@ -337,6 +302,7 @@ import { useRouter } from 'vue-router'
 import { api } from '@/services/api'
 import { auth } from '@/services/auth'
 import FooterComponent from '@/components/FooterComponent.vue'
+import NavBarComponent from '@/components/NavBarComponent.vue'
 
 // Tipos
 interface GameSearchResult {
@@ -441,11 +407,11 @@ const triggerFileInput = () => {
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   const files = target.files
-  
+
   if (!files || files.length === 0) return
 
   fileErrors.value = []
-  
+
   // Validar número de archivos
   const totalFiles = formData.value.archivos.length + files.length
   if (totalFiles > 5) {
@@ -459,11 +425,11 @@ const handleFileChange = (event: Event) => {
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
-    
+
     // Validar tipo
     const isImage = file.type.startsWith('image/')
     const isVideo = file.type.startsWith('video/')
-    
+
     if (!isImage && !isVideo) {
       fileErrors.value.push(`"${file.name}" no és un tipus d'arxiu vàlid.`)
       continue
@@ -508,24 +474,24 @@ const formatFileSize = (bytes: number): string => {
 // Validación del formulario
 const validateForm = (): boolean => {
   errors.value = {}
-  
+
   if (formData.value.nombre.trim().length < 2) {
     errors.value.nombre = 'El nom ha de tenir almenys 2 caràcters'
   }
-  
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(formData.value.email)) {
     errors.value.email = 'Introdueix un correu electrònic vàlid'
   }
-  
+
   if (formData.value.asunto.trim().length < 5) {
     errors.value.asunto = "L'assumpte ha de tenir almenys 5 caràcters"
   }
-  
+
   if (formData.value.mensaje.trim().length < 10) {
     errors.value.mensaje = 'El missatge ha de tenir almenys 10 caràcters'
   }
-  
+
   return Object.keys(errors.value).length === 0
 }
 
@@ -534,11 +500,11 @@ const handleSubmit = async () => {
   if (!validateForm()) {
     return
   }
-  
+
   isSubmitting.value = true
   showSuccess.value = false
   showError.value = false
-  
+
   try {
     // Crear FormData para enviar archivos
     const submitData = new FormData()
@@ -547,18 +513,18 @@ const handleSubmit = async () => {
     submitData.append('tipo', formData.value.tipo)
     submitData.append('asunto', formData.value.asunto)
     submitData.append('mensaje', formData.value.mensaje)
-    
+
     // Añadir archivos
     formData.value.archivos.forEach((file) => {
       submitData.append('archivos', file)
     })
-    
+
     // Llamada a la API
     await api.createSolicitudWithFiles(submitData)
-    
+
     // Mostrar mensaje de éxito
     showSuccess.value = true
-    
+
     // Limpiar formulario
     formData.value = {
       nombre: '',
@@ -569,20 +535,20 @@ const handleSubmit = async () => {
       archivos: []
     }
     fileErrors.value = []
-    
+
     // Scroll al inicio
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    
+
     // Ocultar mensaje de éxito después de 5 segundos
     setTimeout(() => {
       showSuccess.value = false
     }, 5000)
-    
+
   } catch (error: any) {
     console.error('Error al enviar solicitud:', error)
     showError.value = true
     errorMessage.value = error?.message || 'No s\'ha pogut enviar el missatge. Si us plau, intenta-ho de nou.'
-    
+
     // Ocultar mensaje de error después de 5 segundos
     setTimeout(() => {
       showError.value = false
@@ -594,7 +560,7 @@ const handleSubmit = async () => {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
-  
+
   // Pre-rellenar email si el usuario está autenticado
   if (auth.state.user?.email) {
     formData.value.email = auth.state.user.email
@@ -606,7 +572,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
-  
+
   // Limpiar URLs de preview
   formData.value.archivos.forEach(file => {
     URL.revokeObjectURL(getFilePreview(file))
@@ -620,6 +586,7 @@ onBeforeUnmount(() => {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
