@@ -15,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./frontend # Ens situem a la carpeta del frontend
+        working-directory: ./frontend
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # Baixa el codi del repositori
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -37,27 +37,13 @@ jobs:
   build_and_deploy_job:
     runs-on: ubuntu-latest
     needs: test-frontend
+    # No executem deploy/pre_deploy si és la branca dev (només tests)
     if: github.ref != 'refs/heads/dev'
-    permissions:
-      id-token: write
-      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
           lfs: false
-
-      - name: Install OIDC Client from Core Package
-        run: npm install @actions/core@1.6.0 @actions/http-client
-
-      - name: Get Id Token
-        id: idtoken
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const coredemo = require('@actions/core')
-            return await coredemo.getIDToken()
-          result-encoding: string
 
       # --- Si estem a la branca 'pre_deploy' (Staging) ---
       - name: Build And Deploy to Staging
@@ -70,7 +56,6 @@ jobs:
           app_location: ./frontend
           api_location: "https://registre-backend-h6c4eugbgghncyhe.francecentral-01.azurewebsites.net"
           output_location: dist
-          github_id_token: ${{ steps.idtoken.outputs.result }}
 
       # --- Si estem a la branca 'deploy' (Production) ---
       - name: Build And Deploy to Production
@@ -83,4 +68,3 @@ jobs:
           app_location: ./frontend
           api_location: "https://registre-backend-h6c4eugbgghncyhe.francecentral-01.azurewebsites.net"
           output_location: dist
-          github_id_token: ${{ steps.idtoken.outputs.result }}
