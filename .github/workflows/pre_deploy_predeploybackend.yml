@@ -45,9 +45,6 @@ jobs:
   test-backend:
     name: Tests backend
     runs-on: ubuntu-latest
-    concurrency:
-      group: backend-tests-${{ github.ref }}
-      cancel-in-progress: false
     defaults:
       run:
         working-directory: ./backend 
@@ -65,6 +62,9 @@ jobs:
 
       - name: Install backend dependencies
         run: npm ci
+
+      - name: Wait for 1 minute # Esperar que els tests del workflow del frontend hagin acabat per no tenir concurrència a la BBDD
+        run: sleep 60s
 
       - name: Executar tests backend
         run: npm test
