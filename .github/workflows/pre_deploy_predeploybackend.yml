@@ -79,11 +79,29 @@ jobs:
       id-token: write
       contents: read
 
+    defaults:
+      run:
+        working-directory: ./backend
+
     steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4       
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          name: backend-app
+          node-version: '20'
+
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Build backend (opcional)
+        run: npm run build --if-present
+
+      - name: Crear paquet ZIP del backend
+        run: |
+          # Creem un ZIP només amb el backend, excloent node_modules i .git
+          zip -r backend.zip . -x "node_modules/**" "*.git*" ".git/**"
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -97,4 +115,4 @@ jobs:
         with:
           app-name: predeploybackend
           slot-name: Production
-          package: backend.zip
+          package: backend/backend.zip
