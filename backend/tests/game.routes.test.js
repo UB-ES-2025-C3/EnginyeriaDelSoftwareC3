@@ -13,12 +13,23 @@ app.use('/api/games', gameRoutes);
 describe('Game Routes', () => {
   beforeAll(async () => {
     await connectDB();
+  });
+
+  beforeEach(async () => {
     await Game.deleteMany({});
     await Game.insertMany([
       { name: 'Game A - RPG', genre: 'RPG', platform: 'PC', year: 2022, reviews: [{ stars: 5 }, { stars: 4 }] }, // Avg: 4.5, Reviews: 2
       { name: 'Game B - Action', genre: 'Action', platform: 'PS5', year: 2023, reviews: [{ stars: 3 }] }, // Avg: 3, Reviews: 1
       { name: 'Game C - Another RPG', genre: 'RPG', platform: 'Xbox', year: 2021, reviews: [{ stars: 5 }, { stars: 5 }, { stars: 5 }] }, // Avg: 5, Reviews: 3
     ]);
+    const seeded = await Game.countDocuments();
+    if (seeded !== 3) {
+      throw new Error(`Seed failed, expected 3 games but found ${seeded}`);
+    }
+  });
+
+  afterEach(async () => {
+    await Game.deleteMany({});
   });
 
   afterAll(async () => {
