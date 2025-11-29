@@ -78,7 +78,16 @@ describe("Profile routes", () => {
       expect(res.body.links.psn).toBe(updatePayload.links.psn);
 
       // Verificar que los cambios se reflejan en la base de datos
+      // 1) Comprova primer que la resposta de l'API és correcta (això és el més important)
+      expect(res.statusCode).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.name).toBe(updatePayload.name);
+      expect(res.body.data.bio).toBe(updatePayload.bio);
+      expect(res.body.data.links.twitch).toBe(updatePayload.links.twitch);
+
+      // 2) Extra: comprova a la BD, però de forma segura
       const userInDb = await User.findById(userId);
+      expect(userInDb).not.toBeNull();          // 👈 Afegim aquest check
       expect(userInDb.name).toBe(updatePayload.name);
       expect(userInDb.bio).toBe(updatePayload.bio);
       expect(userInDb.links.twitch).toBe(updatePayload.links.twitch);

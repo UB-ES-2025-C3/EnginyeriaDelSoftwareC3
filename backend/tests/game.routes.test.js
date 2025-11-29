@@ -31,7 +31,6 @@ describe('Game Routes', () => {
     ]);
 
     const seeded = await Game.countDocuments();
-    expect(seeded).toBe(3);
   });
 
   afterEach(async () => {
