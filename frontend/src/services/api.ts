@@ -1,6 +1,7 @@
-import { create } from "domain";
-
-export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
+export const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:4000";
 
 // ⭐ CAMBIO 1: User completo con avatarUrl, bio, etc.
 type User = {
@@ -272,4 +273,7 @@ export const api = {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     }),
+
+  // Minimal test endpoint to verify deployments
+  ping: () => http<{ message: string; environment?: string; timestamp?: string }>("/api/test"),
 };

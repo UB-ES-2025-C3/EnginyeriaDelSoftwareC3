@@ -1,9 +1,9 @@
-name: Backend CI/CD + PREPROD
+name: Backend CI/CD + PROD
 
 on:
   push:
     branches:
-      - pre_deploy
+      - deploy
   workflow_dispatch:
 
 jobs:
@@ -59,14 +59,13 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_58598AC9903943ABA102F73B5CB6F01E }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_06C7AF872BF14DF5BB209133939F7862 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_386309DF94F2423ABFF646A632D6BFAA }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_EA6D114EDAEE4CC698C7AFD315D5CCA8 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_84DEA0B308AA44DDA638C27053ED0303 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E5E2234B523643B4A35A0F06F25CA9EB }}
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: predeploybackend
+          app-name: backend-deploy
           slot-name: Production
           package: backend.zip
-          

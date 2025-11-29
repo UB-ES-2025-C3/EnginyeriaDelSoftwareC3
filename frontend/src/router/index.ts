@@ -10,6 +10,7 @@ import ContactForm from '../views/ContactForm.vue';
 import FAQS from '../views/FAQS.vue';
 import PoliticaPrivacitat from '../views/PoliticaPrivacitat.vue';
 import TermesUsu from '../views/TermesUsu.vue';
+import TestView from '../views/TestView.vue';
 
 const routes = [
   { path: '/register', component: Register },
@@ -22,7 +23,8 @@ const routes = [
   { path: '/contacte', component: ContactForm },
   { path: '/privacitat', name: 'Privacitat', component: PoliticaPrivacitat },
   { path: '/faqs', component: FAQS },
-  { path: '/termes', name: 'TermesUsu', component: TermesUsu }
+  { path: '/termes', name: 'TermesUsu', component: TermesUsu },
+  { path: '/test', component: TestView }
 ];
 
 
