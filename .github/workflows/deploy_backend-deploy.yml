@@ -102,7 +102,7 @@ jobs:
 
       - name: Crear paquet ZIP del backend
         run: |
-          zip -r backend.zip . -x "*.git*" "node_modules/*" "tests
+          zip -r backend.zip . -x "*.git*" ".git/**"
 
       - name: Login to Azure
         uses: azure/login@v2
