@@ -115,6 +115,6 @@ jobs:
       - name: Deploy to Azure Web App (deploybackend)
         uses: azure/webapps-deploy@v3
         with:
-          app-name: deploybackend
+          app-name: backend-deploy
           slot-name: Production
-          package: backend.zip
+          package: backend/backend.zip
