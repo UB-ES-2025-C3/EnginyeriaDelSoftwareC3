@@ -117,4 +117,4 @@ jobs:
         with:
           app-name: predeploybackend
           slot-name: Production
-          package: backend/backend.zip
+          package: backend.zip
