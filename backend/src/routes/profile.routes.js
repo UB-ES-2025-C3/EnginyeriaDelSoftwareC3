@@ -27,9 +27,7 @@ const upload = multer({
   limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
   fileFilter: (_req, file, cb) => {
     if (!ALLOWED.includes(file.mimetype)) {
-      const err = new Error('UNSUPPORTED_FORMAT');
-      err.code = 'UNSUPPORTED_FORMAT';
-      return cb(err);
+      return cb(new Error('UNSUPPORTED_FORMAT'));
     }
     cb(null, true);
   },
@@ -141,12 +139,13 @@ router.post(
 
 // Error handler de multer
 router.use((err, _req, res, next) => {
-  if (err.code === 'LIMIT_FILE_SIZE') {
-    return res.status(400).json({ error: 'FILE_TOO_LARGE' });
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'FILE_TOO_LARGE' });
+    }
   }
-
-  if (err.code === 'UNSUPPORTED_FORMAT') {
-    return res.status(400).json({ error: 'UNSUPPORTED_FORMAT' });
+  if (err) {
+    return res.status(400).json({ error: err.message || 'UPLOAD_FAILED' });
   }
   next(err);
 });
