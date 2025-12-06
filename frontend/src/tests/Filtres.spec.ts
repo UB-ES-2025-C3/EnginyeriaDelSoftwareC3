@@ -33,6 +33,7 @@ describe('CatalegJocs.vue - Filter Functionality', () => {
     vi.resetAllMocks();
     auth.state = { token: null, user: null };
     vi.mocked(api.getGames).mockResolvedValue(createResponse());
+    vi.mocked(api.getGameReviews).mockResolvedValue({ reviews: [] });
     router = makeTestRouter();
     // Reset router to a known state before each test
     await router.push('/cataleg');
