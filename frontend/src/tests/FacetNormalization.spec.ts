@@ -30,6 +30,7 @@ describe('Facet normalization', () => {
     vi.resetAllMocks();
     auth.state = { token: null, user: null };
     vi.mocked(api.getGames).mockResolvedValue(createResponse());
+    vi.mocked(api.getGameReviews).mockResolvedValue({ reviews: [] });
     router = makeTestRouter();
     await router.push('/cataleg');
     await router.isReady();

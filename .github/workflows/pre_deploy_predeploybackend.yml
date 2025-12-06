@@ -1,9 +1,10 @@
-name: Backend CI/CD + PROD
+name: Backend CI/CD + PREPROD
 
+# --- TRIGGERS WORKFLOW ---
 on:
   push:
     branches:
-      - deploy
+      - pre_deploy
   workflow_dispatch:
 
 jobs:
@@ -61,7 +62,7 @@ jobs:
 
       - name: Install backend dependencies
         run: npm ci
-              
+
       - name: Wait for 1 minute # Esperar que els tests del workflow del frontend hagin acabat per no tenir concurrència a la BBDD
         run: sleep 60s
 
@@ -70,8 +71,9 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGO_URI_TEST }}
 
-  deploy-backend-prod:
-    name: Deploy backend a Azure (PROD)
+  # --- JOB 2: DEPLOY A AZURE (PREDEPLOYBACKEND) ---
+  deploy-backend-preprod:
+    name: Deploy backend a Azure (PREPROD)
     runs-on: ubuntu-latest
     needs: 
       - test-frontend
@@ -86,14 +88,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4       
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-          
       - name: Install backend dependencies
         run: npm ci
 
@@ -107,13 +108,13 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_EA6D114EDAEE4CC698C7AFD315D5CCA8 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_84DEA0B308AA44DDA638C27053ED0303 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E5E2234B523643B4A35A0F06F25CA9EB }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_58598AC9903943ABA102F73B5CB6F01E }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_06C7AF872BF14DF5BB209133939F7862 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_386309DF94F2423ABFF646A632D6BFAA }}
 
-      - name: Deploy to Azure Web App (PROD backend)
+      - name: Deploy to Azure Web App (predeploybackend)
         uses: azure/webapps-deploy@v3
         with:
-          app-name: backend-deploy
+          app-name: predeploybackend
           slot-name: Production
           package: backend/backend.zip

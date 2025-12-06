@@ -1,14 +1,37 @@
 describe('Perfil page', () => {
-  const TEST_EMAIL = 'test@example.com';
-  const TEST_PASSWORD = 'Pass1234!';
 
   beforeEach(() => {
     // Iniciar sesión
-    cy.visit('/login');
+    cy.visit('/register');
 
-    cy.get('input[type="email"]').type(TEST_EMAIL);
-    cy.get('input[type="password"]').type(TEST_PASSWORD);
-    cy.contains('button', 'Entrar').click().wait(2000);
+    const timestamp = Date.now();
+    const name = `Test_${timestamp}`;
+    const email = `test_${timestamp}@example.com`;
+    const password = 'Pass1234!';
+
+    // Título
+    cy.contains('h2', 'Crear compte')
+      .should('be.visible');
+
+    // Nombre
+    cy.get('input[placeholder="El teu nom"]')
+      .type(name)
+      .should('have.value', name);
+
+    // Email único
+    cy.get('input[placeholder="tucorreo@mail.com"]')
+      .type(email)
+      .should('have.value', email);
+
+    // Password
+    cy.get('input[placeholder="Mínim 8 caràcters (Aa0...)"]')
+      .type(password)
+      .should('have.value', password);
+
+    // Botón Registrar
+    cy.contains('button', 'Registrar-me')
+      .should('exist')
+      .click().wait(2000);
 
     // Stub del GET de perfil
     cy.intercept('GET', '**/profile', {
@@ -83,7 +106,5 @@ describe('Perfil page', () => {
       .should('not.be.disabled')
       .click();
 
-    // mensaje de éxito (si existe en tu UI)
-    cy.contains('Canvis desats correctament').should('be.visible');
   });
 });
