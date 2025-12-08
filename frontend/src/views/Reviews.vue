@@ -100,86 +100,109 @@
       </div>
     </header>
 
-    <!-- CONTENIDO: feed de ressenyes -->
+    <!-- CONTENIDO -->
     <main class="max-w-5xl mx-auto px-4 py-12">
-      <h1 class="text-3xl font-bold mb-6">Ressenyes de la comunitat</h1>
+      <h1 class="text-3xl font-bold mb-6">Comunitat CheckPoint</h1>
 
-      <div v-if="loading" class="text-center py-10 text-gray-400">
-        Carregant ressenyes...
+      <!-- TABS -->
+      <div class="flex items-center gap-4 mb-8 border-b border-gray-800">
+        <button 
+          @click="activeTab = 'reviews'"
+          class="pb-3 px-2 text-sm font-semibold transition-colors border-b-2"
+          :class="activeTab === 'reviews' ? 'border-purple-500 text-white' : 'border-transparent text-gray-400 hover:text-gray-200'">
+          Ressenyes de Jocs
+        </button>
+        <button 
+          @click="activeTab = 'wall'"
+          class="pb-3 px-2 text-sm font-semibold transition-colors border-b-2"
+          :class="activeTab === 'wall' ? 'border-purple-500 text-white' : 'border-transparent text-gray-400 hover:text-gray-200'">
+          Mur de la Comunitat
+        </button>
       </div>
 
-      <div v-else>
-        <div v-if="reviews.length === 0" class="text-sm text-gray-400">
-          Encara no hi ha ressenyes. Torna més tard!
+      <!-- TAB: Ressenyes -->
+      <div v-if="activeTab === 'reviews'">
+        <div v-if="loading" class="text-center py-10 text-gray-400">
+          Carregant ressenyes...
         </div>
 
-        <div v-else class="space-y-4">
-          <article v-for="(review, i) in reviews" :key="review._id || i"
-            class="flex items-start gap-4 bg-gray-900/80 p-4 rounded-lg border border-gray-800">
-            <!-- Avatar -->
-            <div class="flex-shrink-0">
-              <div
-                class="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex items-center justify-center text-sm font-medium text-white">
-                <img v-if="review.user?.avatarUrl" :src="review.user.avatarUrl" :alt="review.user?.name || 'Avatar'"
-                  class="w-full h-full object-cover" />
-                <span v-else>
-                  {{ review.user?.name ? review.user.name[0].toUpperCase() : 'U' }}
-                </span>
-              </div>
-            </div>
+        <div v-else>
+          <div v-if="reviews.length === 0" class="text-sm text-gray-400">
+            Encara no hi ha ressenyes. Torna més tard!
+          </div>
 
-            <!-- Contenido -->
-            <div class="flex-1">
-              <!-- Nombre usuario + fecha -->
-              <header class="flex items-center justify-between gap-4 mb-1">
-                <div>
-                  <h4 class="text-sm font-semibold text-white">
-                    {{ review.user?.name || 'Usuari' }}
-                  </h4>
-                  <!-- 👇 TÍTULO DEL JUEGO -->
-                  <p class="text-xs text-gray-400">
-                    {{ review.game?.name || 'Joc desconegut' }}
-                  </p>
-                </div>
-                <span class="text-xs text-gray-400">
-                  {{ formatReviewDate(review.createdAt) }}
-                </span>
-              </header>
-
-              <!-- Estrellas -->
-              <div class="flex items-center gap-2 mb-1">
-                <div class="flex items-center gap-1">
-                  <Star v-for="n in review.stars" :key="`rfull-${i}-${n}`" class="w-4 h-4 fill-yellow-400" />
-                  <Star v-for="n in 5 - review.stars" :key="`rempty-${i}-${n}`" class="w-4 h-4 fill-gray-600" />
+          <div v-else class="space-y-4">
+            <article v-for="(review, i) in reviews" :key="review._id || i"
+              class="flex items-start gap-4 bg-gray-900/80 p-4 rounded-lg border border-gray-800">
+              <!-- Avatar -->
+              <div class="flex-shrink-0">
+                <div
+                  class="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex items-center justify-center text-sm font-medium text-white">
+                  <img v-if="review.user?.avatarUrl" :src="review.user.avatarUrl" :alt="review.user?.name || 'Avatar'"
+                    class="w-full h-full object-cover" />
+                  <span v-else>
+                    {{ review.user?.name ? review.user.name[0].toUpperCase() : 'U' }}
+                  </span>
                 </div>
               </div>
 
-              <!-- Texto -->
-              <p class="mt-1 text-sm text-gray-300 leading-relaxed">
-                {{ review.text }}
-              </p>
-            </div>
+              <!-- Contenido -->
+              <div class="flex-1">
+                <!-- Nombre usuario + fecha -->
+                <header class="flex items-center justify-between gap-4 mb-1">
+                  <div>
+                    <h4 class="text-sm font-semibold text-white">
+                      {{ review.user?.name || 'Usuari' }}
+                    </h4>
+                    <!-- 👇 TÍTULO DEL JUEGO -->
+                    <p class="text-xs text-gray-400">
+                      {{ review.game?.name || 'Joc desconegut' }}
+                    </p>
+                  </div>
+                  <span class="text-xs text-gray-400">
+                    {{ formatReviewDate(review.createdAt) }}
+                  </span>
+                </header>
 
-            <!-- Likes / Dislikes -->
-            <div v-if="isLoggedIn" class="flex items-center gap-4 mt-3">
-              <!-- LIKE -->
-              <button @click="toggleLike(review)" class="flex items-center gap-1 transition-colors"
-                :class="review.userVote === 'like' ? 'text-green-400' : 'text-gray-400 hover:text-white'">
-                👍 <span class="text-sm">{{ review.likes }}</span>
-              </button>
+                <!-- Estrellas -->
+                <div class="flex items-center gap-2 mb-1">
+                  <div class="flex items-center gap-1">
+                    <Star v-for="n in review.stars" :key="`rfull-${i}-${n}`" class="w-4 h-4 fill-yellow-400" />
+                    <Star v-for="n in 5 - review.stars" :key="`rempty-${i}-${n}`" class="w-4 h-4 fill-gray-600" />
+                  </div>
+                </div>
 
-              <!-- DISLIKE -->
-              <button @click="toggleDislike(review)" class="flex items-center gap-1 transition-colors"
-                :class="review.userVote === 'dislike' ? 'text-red-400' : 'text-gray-400 hover:text-white'">
-                👎 <span class="text-sm">{{ review.dislikes }}</span>
-              </button>
-            </div>
+                <!-- Texto -->
+                <p class="mt-1 text-sm text-gray-300 leading-relaxed">
+                  {{ review.text }}
+                </p>
+              </div>
 
+              <!-- Likes / Dislikes -->
+              <div v-if="isLoggedIn" class="flex items-center gap-4 mt-3">
+                <!-- LIKE -->
+                <button @click="toggleLike(review)" class="flex items-center gap-1 transition-colors"
+                  :class="review.userVote === 'like' ? 'text-green-400' : 'text-gray-400 hover:text-white'">
+                  👍 <span class="text-sm">{{ review.likes }}</span>
+                </button>
 
+                <!-- DISLIKE -->
+                <button @click="toggleDislike(review)" class="flex items-center gap-1 transition-colors"
+                  :class="review.userVote === 'dislike' ? 'text-red-400' : 'text-gray-400 hover:text-white'">
+                  👎 <span class="text-sm">{{ review.dislikes }}</span>
+                </button>
+              </div>
 
-          </article>
+            </article>
+          </div>
         </div>
       </div>
+
+      <!-- TAB: Mur de la Comunitat -->
+      <div v-else-if="activeTab === 'wall'">
+        <CommunityFeed />
+      </div>
+
     </main>
 
     <!-- FOOTER -->
@@ -195,6 +218,7 @@ import { api } from '@/services/api'
 import { auth } from '@/services/auth'
 import Star from '@/components/icons/Star.vue'
 import FooterComponent from '@/components/FooterComponent.vue'
+import CommunityFeed from '@/components/CommunityFeed.vue'
 
 interface Review {
   _id?: string
@@ -235,6 +259,8 @@ const showSearchDropdown = ref(false)
 const filteredGames = ref<any[]>([])
 const showMenu = ref(false)
 const menuRef = ref<HTMLDivElement | null>(null)
+
+const activeTab = ref<'reviews' | 'wall'>('reviews')
 
 const handleSearch = () => {
   showSearchDropdown.value = searchQuery.value.length > 0
