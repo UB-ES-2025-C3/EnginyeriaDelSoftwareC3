@@ -72,10 +72,6 @@ export const auth = {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     
-    // ⭐ EXTRA: Limpiar TODA la memoria de sesión
-    localStorage.clear();
-    sessionStorage.clear();
-    
     // Forzar limpieza del estado reactivo
     Object.assign(state, { token: null, user: null });
   },
