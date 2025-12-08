@@ -113,9 +113,51 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 py-12">
+      <!-- ⭐ NUEVA FUNCIONALIDAD: SECCIONES CLICKABLES -->
       <div class="mb-8">
-        <h2 class="text-3xl font-bold mb-2">Jocs Destacats</h2>
-        <p class="text-gray-400">Explora la nostra selecció de títols populars</p>
+        <div class="flex flex-wrap gap-4 mb-6">
+          <button
+            @click="changeSection('destacats')"
+            :class="[
+              'px-6 py-3 rounded-lg font-bold text-lg transition-all duration-200 cursor-pointer',
+              activeSection === 'destacats' 
+                ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/50 scale-105' 
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white hover:scale-105'
+            ]"
+            type="button"
+          >
+            Jocs destacats
+          </button>
+          
+          <button
+            @click="changeSection('llancaments')"
+            :class="[
+              'px-6 py-3 rounded-lg font-bold text-lg transition-all duration-200 cursor-pointer',
+              activeSection === 'llancaments' 
+                ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/50 scale-105' 
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white hover:scale-105'
+            ]"
+            type="button"
+          >
+            Últims llançaments
+          </button>
+          
+          <button
+            @click="changeSection('tendencies')"
+            :class="[
+              'px-6 py-3 rounded-lg font-bold text-lg transition-all duration-200 cursor-pointer',
+              activeSection === 'tendencies' 
+                ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/50 scale-105' 
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white hover:scale-105'
+            ]"
+            type="button"
+          >
+            Últimes tendències
+          </button>
+        </div>
+
+        <h2 class="text-3xl font-bold mb-2">{{ sectionTitle }}</h2>
+        <p class="text-gray-400">{{ sectionDescription }}</p>
       </div>
 
       <div class="mb-6">
@@ -235,6 +277,26 @@ import { buildGenreMap, buildPlatformMap, type FacetMap } from '@/utils/facets'
 
 const router = useRouter()
 const route = useRoute()
+
+// ⭐ NUEVA FUNCIONALIDAD: Secciones
+type Section = 'destacats' | 'llancaments' | 'tendencies'
+const activeSection = ref<Section>('destacats')
+
+const sectionTitle = computed(() => {
+  switch (activeSection.value) {
+    case 'destacats': return 'Jocs Destacats'
+    case 'llancaments': return 'Últims Llançaments'
+    case 'tendencies': return 'Últimes Tendències'
+  }
+})
+
+const sectionDescription = computed(() => {
+  switch (activeSection.value) {
+    case 'destacats': return 'Explora els jocs amb millor valoració de la comunitat'
+    case 'llancaments': return 'Descobreix els llançaments més recents'
+    case 'tendencies': return 'Els jocs més comentats i populars del moment'
+  }
+})
 
 type SortOption = { value: 'best' | 'worst' | 'year' | 'reviews'; label: string }
 type ActiveFilter = { type: 'search' | 'genre' | 'platform'; label: string; value?: string }
@@ -406,44 +468,44 @@ const mapGame = (game: GameSummary): CatalogGame => ({
   reviewCount: Number(game.reviewCount ?? 0)
 })
 
-const applyLocalSort = () => {
-  switch (selectedSort.value) {
-    case 'best': {
+// ⭐ NUEVA FUNCIONALIDAD: Cambiar de sección con ordenación específica
+const changeSection = (section: Section) => {
+  activeSection.value = section
+  
+  // Aplicar ordenación según la sección seleccionada
+  switch (section) {
+    case 'destacats':
+      // Ordenar por mejor valoración (descendente)
       games.value.sort((a, b) => {
         if (b.averageRating !== a.averageRating) {
           return b.averageRating - a.averageRating
         }
-        // desempatar por nº de reseñas
+        // Desempatar por número de reseñas
         return b.reviewCount - a.reviewCount
       })
       break
-    }
-
-    case 'worst': {
-      games.value.sort((a, b) => {
-        if (a.averageRating !== b.averageRating) {
-          return a.averageRating - b.averageRating
-        }
-        return a.reviewCount - b.reviewCount
-      })
+    
+    case 'llancaments':
+      // Ordenar por año más reciente (descendente)
+      games.value.sort((a, b) => b.year - a.year)
       break
-    }
-
-    case 'reviews': {
+    
+    case 'tendencies':
+      // Ordenar por número de comentarios (descendente)
       games.value.sort((a, b) => {
         if (b.reviewCount !== a.reviewCount) {
           return b.reviewCount - a.reviewCount
         }
+        // Desempatar por valoración
         return b.averageRating - a.averageRating
       })
       break
-    }
-
-    case 'year': {
-      games.value.sort((a, b) => b.year - a.year)
-      break
-    }
   }
+}
+
+const applyLocalSort = () => {
+  // Aplicar la ordenación de la sección activa
+  changeSection(activeSection.value)
 }
 
 const fetchGames = async (options?: { skipRetry?: boolean }) => {
