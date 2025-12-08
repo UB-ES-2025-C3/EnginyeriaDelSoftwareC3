@@ -159,6 +159,24 @@
                 {{ review.text }}
               </p>
             </div>
+
+            <!-- Likes / Dislikes -->
+            <div v-if="isLoggedIn" class="flex items-center gap-4 mt-3">
+              <!-- LIKE -->
+              <button @click="toggleLike(review)" class="flex items-center gap-1 transition-colors"
+                :class="review.userVote === 'like' ? 'text-green-400' : 'text-gray-400 hover:text-white'">
+                👍 <span class="text-sm">{{ review.likes }}</span>
+              </button>
+
+              <!-- DISLIKE -->
+              <button @click="toggleDislike(review)" class="flex items-center gap-1 transition-colors"
+                :class="review.userVote === 'dislike' ? 'text-red-400' : 'text-gray-400 hover:text-white'">
+                👎 <span class="text-sm">{{ review.dislikes }}</span>
+              </button>
+            </div>
+
+
+
           </article>
         </div>
       </div>
@@ -259,19 +277,60 @@ const formatReviewDate = (iso?: string) => {
 onMounted(async () => {
   try {
     loading.value = true
+
     const data = await api.getAllReviews()
-    reviews.value = data
-    console.log('TOTES LES RESSENYES:', reviews.value)
+
+    // 👇 Inicialitzar camps necessaris perquè Vue sigui reactiu
+    reviews.value = data.map(r => ({
+      ...r,
+      likes: r.likes ?? 0,
+      dislikes: r.dislikes ?? 0,
+      userVote: null, // o r.userVote si ve del backend
+    }))
+
+    console.log("Ressenyes carregades:", reviews.value)
+
   } catch (err) {
-    console.error('Error carregant les ressenyes:', err)
+    console.error("Error carregant les ressenyes:", err)
   } finally {
     loading.value = false
   }
 
-  document.addEventListener('click', handleClickOutside)
+  document.addEventListener("click", handleClickOutside)
 })
+
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
+
+
+function toggleLike(review) {
+  if (review.userVote === 'like') {
+    // desfer like
+    review.likes--
+    review.userVote = null
+  } else {
+    // posar like
+    review.likes++
+    if (review.userVote === 'dislike') review.dislikes--
+    review.userVote = 'like'
+  }
+}
+
+function toggleDislike(review) {
+  if (review.userVote === 'dislike') {
+    // desfer dislike
+    review.dislikes--
+    review.userVote = null
+  } else {
+    // posar dislike
+    review.dislikes++
+    if (review.userVote === 'like') review.likes--
+    review.userVote = 'dislike'
+  }
+}
+
+
+
 </script>
