@@ -178,10 +178,14 @@ const buildQueryString = (params?: GameQueryParams) => {
   return qs ? `?${qs}` : '';
 };
 
-async function http<T>(path: string, opts?: RequestInit): Promise<T> {
+async function http<T>(path: string, opts: RequestInit = {}): Promise<T> {
+  const isFormData = opts.body instanceof FormData;
+  const defaultHeaders = isFormData ? {} : { "Content-Type": "application/json" };
+  const mergedHeaders = { ...defaultHeaders, ...(opts.headers || {}) };
+
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...(opts?.headers || {}) },
     ...opts,
+    headers: mergedHeaders,
   });
   if (!res.ok) throw await res.json().catch(() => ({ error: res.statusText }));
   return res.json();
@@ -320,4 +324,3 @@ export const api = {
       body: JSON.stringify({ text }),
     }),
 };
-
