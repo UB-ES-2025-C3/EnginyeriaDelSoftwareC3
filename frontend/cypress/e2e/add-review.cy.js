@@ -29,7 +29,7 @@ describe('User flow: register -> catàleg -> game -> write review', () => {
     cy.contains('button', 'Registrar-me')
       .should('exist')
       .click()
-      .wait(2000);
+      .wait(3000);
 
     // ---------- 2) LOGIN (si tu app no deja logueado tras el registro) ----------
     cy.visit('/login');
