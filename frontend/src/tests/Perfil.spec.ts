@@ -114,6 +114,13 @@ describe('Perfil.vue', () => {
 
     expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
     expect(wrapper.find('.text-red-400').text()).toBe('El nom no pot estar buit');
+
+    // Nombre demasiado largo
+    await wrapper.find('#name').setValue('a'.repeat(61));
+    await flushPromises();
+
+    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined();
+    expect(wrapper.find('.text-red-400').text()).toBe('Nom massa llarg (màx 60)');
   });
 
   it('uploads an avatar, saves, and calls uploadProfileMedia', async () => {
@@ -148,12 +155,64 @@ describe('Perfil.vue', () => {
     expect(auth.updateUser).toHaveBeenCalledWith(expect.objectContaining({ avatarUrl: 'new-avatar.jpg' }));
   });
 
+  it('shows error on large file upload', async () => {
+    const wrapper = await mountComponent();
+    const largeFile = new File(['a'.repeat(3 * 1024 * 1024)], 'large.png', { type: 'image/png' });
+
+    const avatarInput = wrapper.findAll('input[type="file"]').at(1);
+    Object.defineProperty(avatarInput.element, 'files', { value: [largeFile] });
+    await avatarInput.trigger('change');
+    await flushPromises();
+
+    expect(wrapper.find('.text-red-400').text()).toBe('La imatge supera 2 MB');
+  });
+
+  it('shows error on unsupported file format upload', async () => {
+    const wrapper = await mountComponent();
+    const unsupportedFile = new File(['text'], 'document.txt', { type: 'text/plain' });
+
+    const bannerInput = wrapper.findAll('input[type="file"]').at(0);
+    Object.defineProperty(bannerInput.element, 'files', { value: [unsupportedFile] });
+    await bannerInput.trigger('change');
+    await flushPromises();
+
+    expect(wrapper.find('.text-red-400').text()).toBe('Format no suportat (JPG/PNG)');
+  });
+
+  it('does not save when no changes are made', async () => {
+    const wrapper = await mountComponent();
+    const saveButton = wrapper.find('button[type="submit"]');
+
+    expect(saveButton.attributes('disabled')).toBeDefined();
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+
+    expect(api.updateProfile).not.toHaveBeenCalled();
+  });
+
+  it('shows error when save fails', async () => {
+    const wrapper = await mountComponent();
+    vi.mocked(api.updateProfile).mockRejectedValue({ error: 'Update failed' });
+
+    await wrapper.find('#name').setValue('A new name to trigger save');
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+
+    expect(wrapper.find('.text-red-400').text()).toBe('Update failed');
+  });
+
   it('resets the form when cancel button is clicked', async () => {
     const wrapper = await mountComponent();
     
     // Cambiar datos
     await wrapper.find('#name').setValue('Temporary Name');
     await wrapper.find('#bio').setValue('Temporary Bio');
+    
+    const bannerFile = new File(['banner'], 'banner.png', { type: 'image/png' });
+    const bannerInput = wrapper.findAll('input[type="file"]').at(0);
+    Object.defineProperty(bannerInput.element, 'files', { value: [bannerFile] });
+    await bannerInput.trigger('change');
+    await flushPromises();
 
     // Clic en cancelar
     await wrapper.find('button[type="button"].px-6.py-3').trigger('click');
@@ -162,6 +221,7 @@ describe('Perfil.vue', () => {
     // Comprobar que los datos volvieron al original
     expect((wrapper.find('#name').element as HTMLInputElement).value).toBe(mockProfile.name);
     expect((wrapper.find('#bio').element as HTMLTextAreaElement).value).toBe(mockProfile.bio);
+    expect(wrapper.find('img[alt="Previsualització portada"]').exists()).toBe(false);
   });
 
   it('calls auth.logout when logout button is clicked', async () => {

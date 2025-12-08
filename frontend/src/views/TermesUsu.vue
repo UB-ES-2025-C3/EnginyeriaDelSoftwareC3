@@ -210,9 +210,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue';
-import FooterComponent from '@/components/FooterComponent.vue'
-import NavBarComponent from '@/components/NavBarComponent.vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import FooterComponent from '@/components/FooterComponent.vue';
+import NavBarComponent from '@/components/NavBarComponent.vue';
+import { auth } from '@/services/auth';
+import { api, type GameSummary } from '@/services/api';
+
+const router = useRouter();
 
 const pageTitle = "Termes d'ús | CheckPoint";
 const description =
@@ -222,11 +227,58 @@ let previousTitle = document.title;
 let previousDescription = '';
 let metaDescription: HTMLMetaElement | null = null;
 
+const searchQuery = ref('');
+const showSearchDropdown = ref(false);
+const searchResults = ref<GameSummary[]>([]);
+const isLoggedIn = computed(() => !!auth.state.token && !!auth.state.user);
+const userAvatar = computed(() => auth.state.user?.avatarUrl || '');
+const userName = computed(() => auth.state.user?.name || '');
+const userInitials = computed(() => {
+  if (!auth.state.user?.name) return '?';
+  const names = auth.state.user.name.trim().split(' ');
+  if (names.length >= 2) return `${names[0][0]}${names[1][0]}`.toUpperCase();
+  return names[0][0].toUpperCase();
+});
+const showMenu = ref(false);
+const menuRef = ref<HTMLElement | null>(null);
+
+const handleSearch = () => {
+  // Implement search logic if needed
+};
+
+const hideDropdown = () => {
+  setTimeout(() => {
+    showSearchDropdown.value = false;
+  }, 180);
+};
+
+const closeDropdown = () => {
+  showSearchDropdown.value = false;
+};
+
+const handleSearchSubmit = () => {
+  if (searchQuery.value.trim()) {
+    router.push({ path: '/cataleg', query: { q: searchQuery.value.trim() } });
+  }
+};
+
+const handleLogout = () => {
+  auth.logout();
+  showMenu.value = false;
+  router.push('/login');
+};
+
+const handleClickOutside = (event: MouseEvent) => {
+  if (menuRef.value && !menuRef.value.contains(event.target as Node)) {
+    showMenu.value = false;
+  }
+};
+
 onMounted(() => {
   previousTitle = document.title;
   document.title = pageTitle;
 
-  metaDescription = document.querySelector('meta[name=\"description\"]');
+  metaDescription = document.querySelector('meta[name="description"]');
   if (!metaDescription) {
     metaDescription = document.createElement('meta');
     metaDescription.setAttribute('name', 'description');
@@ -234,6 +286,7 @@ onMounted(() => {
   }
   previousDescription = metaDescription?.getAttribute('content') || '';
   metaDescription?.setAttribute('content', description);
+  document.addEventListener('click', handleClickOutside);
 });
 
 onUnmounted(() => {
@@ -241,5 +294,6 @@ onUnmounted(() => {
   if (metaDescription) {
     metaDescription.setAttribute('content', previousDescription);
   }
+  document.removeEventListener('click', handleClickOutside);
 });
 </script>

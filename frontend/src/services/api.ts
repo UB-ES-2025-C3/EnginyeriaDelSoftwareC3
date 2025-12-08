@@ -56,6 +56,10 @@ export interface Review {
     _id?: string
     name?: string
   }
+  
+  likes: number
+  dislikes: number
+  userVote: 'like' | 'dislike' | null
 }
 
 export interface CreateReviewPayload {

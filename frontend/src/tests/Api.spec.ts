@@ -152,4 +152,103 @@ describe('services/api.ts', () => {
         await expect(api.uploadProfileMedia('token123', formData)).rejects.toEqual(errorResponse);
     });
   });
+
+  describe('Solicitudes and Reviews API methods', () => {
+    it('getAllReviews: should fetch all reviews', async () => {
+      const mockData = [{ text: 'Great game!' }];
+      mockFetch.mockReturnValue(mockResponse(mockData));
+      
+      const result = await api.getAllReviews();
+      
+      expect(mockFetch).toHaveBeenCalledWith(`${API_BASE}/api/reviews`, expect.any(Object));
+      expect(result).toEqual(mockData);
+    });
+
+    it('createReview: should send review data', async () => {
+      const payload = { stars: 5, text: 'Awesome' };
+      const mockData = { message: 'Review created', review: { ...payload, _id: '1', game: 'g1', user: { _id: 'u1' }, createdAt: 'date' } };
+      mockFetch.mockReturnValue(mockResponse(mockData));
+
+      const result = await api.createReview('token123', 'game1', payload);
+
+      expect(mockFetch).toHaveBeenCalledWith(`${API_BASE}/api/reviews/game1`, {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer token123' },
+      });
+      expect(result).toEqual(mockData);
+    });
+
+    it('createSolicitud: should send a new solicitud', async () => {
+      const payload = { nombre: 'user', email: 'a@a.com', tipo: 'queja', asunto: 'title', mensaje: 'body' };
+      const mockData = { success: true, message: 'Created', data: { _id: '1', ...payload } };
+      mockFetch.mockReturnValue(mockResponse(mockData));
+
+      const result = await api.createSolicitud(payload);
+
+      expect(mockFetch).toHaveBeenCalledWith(`${API_BASE}/api/solicitudes`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      expect(result).toEqual(mockData);
+    });
+
+    it('createSolicitudWithFiles: should send FormData for a new solicitud', async () => {
+        const mockData = { success: true, message: 'Created' };
+        mockFetch.mockReturnValue(mockResponse(mockData));
+        const formData = new FormData();
+        formData.append('nombre', 'Test');
+        
+        const result = await api.createSolicitudWithFiles(formData);
+        
+        expect(mockFetch).toHaveBeenCalledWith(`${API_BASE}/api/solicitudes`, {
+            method: 'POST',
+            body: formData,
+        });
+        expect(result).toEqual(mockData);
+    });
+    
+    it('createSolicitudWithFiles: should handle failure', async () => {
+        const errorResponse = { error: 'Failed to create' };
+        mockFetch.mockReturnValue(mockResponse(errorResponse, false, 500));
+        const formData = new FormData();
+        formData.append('nombre', 'Test');
+
+        await expect(api.createSolicitudWithFiles(formData)).rejects.toEqual(errorResponse);
+    });
+
+    it('getSolicitudes: should fetch all solicitudes with token', async () => {
+        const mockData = { success: true, count: 1, data: [] };
+        mockFetch.mockReturnValue(mockResponse(mockData));
+        await api.getSolicitudes('token123');
+        expect(mockFetch).toHaveBeenCalledWith(`${API_BASE}/api/solicitudes`, {
+            headers: { Authorization: 'Bearer token123' }
+        });
+    });
+
+    it('markSolicitudAsRead: should send a PATCH request', async () => {
+        mockFetch.mockReturnValue(mockResponse({ success: true }));
+        await api.markSolicitudAsRead('solicitud1', 'token123');
+        expect(mockFetch).toHaveBeenCalledWith(`${API_BASE}/api/solicitudes/solicitud1/leido`, {
+            method: 'PATCH',
+            headers: { Authorization: 'Bearer token123' }
+        });
+    });
+
+    it('deleteSolicitud: should send a DELETE request', async () => {
+        mockFetch.mockReturnValue(mockResponse({ success: true }));
+        await api.deleteSolicitud('solicitud1', 'token123');
+        expect(mockFetch).toHaveBeenCalledWith(`${API_BASE}/api/solicitudes/solicitud1`, {
+            method: 'DELETE',
+            headers: { Authorization: 'Bearer token123' }
+        });
+    });
+    
+    it('ping: should call the test endpoint', async () => {
+        mockFetch.mockReturnValue(mockResponse({ message: 'pong' }));
+        await api.ping();
+        expect(mockFetch).toHaveBeenCalledWith(`${API_BASE}/api/test`, expect.any(Object));
+    });
+  });
 });

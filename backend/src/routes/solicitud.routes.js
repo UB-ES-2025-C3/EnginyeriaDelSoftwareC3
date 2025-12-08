@@ -179,4 +179,16 @@ router.delete('/solicitudes/:id', async (req, res) => {
   }
 });
 
+// Error handler de multer
+router.use((err, _req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ success: false, message: 'Un dels fitxers supera el límit de mida.' });
+    }
+  } else if (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+  next(err);
+});
+
 export default router;

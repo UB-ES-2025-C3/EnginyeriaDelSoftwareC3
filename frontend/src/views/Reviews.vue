@@ -82,7 +82,7 @@
                 <router-link v-if="isLoggedIn" to="/perfil"
                   class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                   @click="showMenu = false">
-                  📝 Editar perfil
+                  📝 Editar perfil 
                 </router-link>
                 <button v-if="isLoggedIn" @click="handleLogout"
                   class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
@@ -159,6 +159,24 @@
                 {{ review.text }}
               </p>
             </div>
+
+            <!-- Likes / Dislikes -->
+            <div v-if="isLoggedIn" class="flex items-center gap-4 mt-3">
+              <!-- LIKE -->
+              <button @click="toggleLike(review)" class="flex items-center gap-1 transition-colors"
+                :class="review.userVote === 'like' ? 'text-green-400' : 'text-gray-400 hover:text-white'">
+                👍 <span class="text-sm">{{ review.likes }}</span>
+              </button>
+
+              <!-- DISLIKE -->
+              <button @click="toggleDislike(review)" class="flex items-center gap-1 transition-colors"
+                :class="review.userVote === 'dislike' ? 'text-red-400' : 'text-gray-400 hover:text-white'">
+                👎 <span class="text-sm">{{ review.dislikes }}</span>
+              </button>
+            </div>
+
+
+
           </article>
         </div>
       </div>
@@ -192,6 +210,10 @@ interface Review {
     _id?: string
     name?: string
   }
+  // 👉 campos que vamos a persistir
+  likes: number
+  dislikes: number
+  userVote: 'like' | 'dislike' | null
 }
 
 const router = useRouter()
@@ -244,6 +266,49 @@ const handleClickOutside = (event: MouseEvent) => {
 const reviews = ref<Review[]>([])
 const loading = ref(true)
 
+const LOCAL_VOTES_KEY = computed(() => {
+  const user = auth.state.user
+  const id = user?.id || user?.id
+  return id ? `checkpoint_review_votes_${id}` : `checkpoint_review_votes_guest`
+})
+
+type StoredVotes = Record<string, {
+  likes: number
+  dislikes: number
+  userVote: 'like' | 'dislike' | null
+}>
+
+function loadStoredVotes(): StoredVotes {
+  try {
+    const raw = localStorage.getItem(LOCAL_VOTES_KEY.value)
+    if (!raw) return {}
+    return JSON.parse(raw)
+  } catch (e) {
+    console.error('Error llegint vots de localStorage', e)
+    return {}
+  }
+}
+
+function saveStoredVotes() {
+  const toStore: StoredVotes = {}
+
+  reviews.value.forEach(r => {
+    if (!r._id) return
+    toStore[r._id] = {
+      likes: r.likes,
+      dislikes: r.dislikes,
+      userVote: r.userVote,
+    }
+  })
+
+  try {
+    localStorage.setItem(LOCAL_VOTES_KEY.value, JSON.stringify(toStore))
+  } catch (e) {
+    console.error('Error guardant vots a localStorage', e)
+  }
+}
+
+
 const formatReviewDate = (iso?: string) => {
   if (!iso) return ''
   const d = new Date(iso)
@@ -255,23 +320,83 @@ const formatReviewDate = (iso?: string) => {
   })
 }
 
-// Cargar todas las reviews
 onMounted(async () => {
   try {
     loading.value = true
+
     const data = await api.getAllReviews()
-    reviews.value = data
-    console.log('TOTES LES RESSENYES:', reviews.value)
+
+    // 1️⃣ Inicializar desde backend
+    reviews.value = data.map((r: any) => ({
+      ...r,
+      likes: r.likes ?? 0,
+      dislikes: r.dislikes ?? 0,
+      userVote: null, // o r.userVote si ve del backend
+    }))
+
+    // 2️⃣ Aplicar lo que tengamos guardado en localStorage
+    const stored = loadStoredVotes()
+
+    reviews.value = reviews.value.map(r => {
+      if (!r._id) return r
+
+      const saved = stored[r._id]
+      if (!saved) return r
+
+      return {
+        ...r,
+        likes: saved.likes,
+        dislikes: saved.dislikes,
+        userVote: saved.userVote,
+      }
+    })
+
+    console.log("Ressenyes carregades:", reviews.value)
+
   } catch (err) {
-    console.error('Error carregant les ressenyes:', err)
+    console.error("Error carregant les ressenyes:", err)
   } finally {
     loading.value = false
   }
 
-  document.addEventListener('click', handleClickOutside)
+  document.addEventListener("click", handleClickOutside)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
+
+
+function toggleLike(review: Review) {
+  if (review.userVote === 'like') {
+    // desfer like
+    review.likes--
+    review.userVote = null
+  } else {
+    // posar like
+    review.likes++
+    if (review.userVote === 'dislike') review.dislikes--
+    review.userVote = 'like'
+  }
+
+  // 👉 persistir cambios
+  saveStoredVotes()
+}
+
+function toggleDislike(review: Review) {
+  if (review.userVote === 'dislike') {
+    // desfer dislike
+    review.dislikes--
+    review.userVote = null
+  } else {
+    // posar dislike
+    review.dislikes++
+    if (review.userVote === 'like') review.likes--
+    review.userVote = 'dislike'
+  }
+
+  // 👉 persistir cambios
+  saveStoredVotes()
+}
+
 </script>
