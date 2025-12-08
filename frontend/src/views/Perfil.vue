@@ -135,7 +135,7 @@
                 class="w-full px-4 py-3 bg-transparent border-2 border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-all min-h-[100px] resize-vertical"></textarea>
               <div class="flex justify-end">
                 <span :class="bio.length >= 240 ? 'text-yellow-400' : 'text-gray-500'" class="text-xs">{{ bio.length
-                  }}/250</span>
+                }}/250</span>
               </div>
             </div>
             <div class="space-y-2">
@@ -187,9 +187,11 @@
             <p v-if="success"
               class="text-green-400 text-sm bg-green-900/20 border border-green-800 rounded-lg px-4 py-3 w-full sm:w-auto sm:mr-auto">
               Perfil desat correctament!</p>
-            <button type="button" @click="resetForm"
-              class="px-6 py-3 text-base border border-gray-600 rounded-xl hover:bg-gray-800 transition-all font-semibold uppercase tracking-wide">Cancel·lar</button>
-            <button type="submit" :disabled="loading || !!nameError || !!bioError || (!isDirty && !hasImageChanges)"
+            <button type="button" @click="handleCancel"
+              class="px-6 py-3 text-base border border-gray-600 rounded-xl hover:bg-gray-800 transition-all font-semibold uppercase tracking-wide">
+              Cancel·lar
+            </button> <button type="submit"
+              :disabled="loading || !!nameError || !!bioError || (!isDirty && !hasImageChanges)"
               class="px-6 py-3 text-base border-2 border-gray-600 rounded-xl hover:bg-gray-800 transition-all font-semibold uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed">
               {{ loading ? 'Desant...' : 'Desar canvis' }}
             </button>
@@ -283,6 +285,7 @@ function onSelectAvatar(e: Event) { const f = (e.target as HTMLInputElement).fil
 function onSelectBanner(e: Event) { const f = (e.target as HTMLInputElement).files?.[0]; if (!f) return; const err = validateFile(f); if (err) { error.value = err === 'FILE_TOO_LARGE' ? 'La imatge supera 2 MB' : 'Format no suportat (JPG/PNG)'; (e.target as HTMLInputElement).value = ''; return; } error.value = null; setPreview('banner', f); }
 function clearAvatar() { if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value); avatarPreview.value = null; avatarFile.value = null; }
 function clearBanner() { if (bannerPreview.value) URL.revokeObjectURL(bannerPreview.value); bannerPreview.value = null; bannerFile.value = null; }
+function handleCancel() {resetForm(); router.push('/cataleg');}
 
 async function handleSave() {
   if (!auth.state.token) return;
