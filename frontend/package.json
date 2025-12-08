@@ -10,9 +10,16 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+
     "test:e2e": "playwright test",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
+
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+
+    "e2e:ci": "start-server-and-test \"npm run preview -- --port 4173\" http://localhost:4173 \"cypress run\"",
+
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
