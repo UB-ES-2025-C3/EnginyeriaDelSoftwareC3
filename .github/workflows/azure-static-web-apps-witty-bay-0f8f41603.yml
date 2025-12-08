@@ -41,8 +41,9 @@ jobs:
       - name: Run frontend unit tests
         run: npm run test:unit
 
-      - name: Run frontend end-to-end tests
-        run: npm run test:e2e
+      - name: Run Cypress E2E tests
+        run: npm run e2e:ci
+        
   # TESTS BACKEND
   test-backend:
     name: Tests backend
