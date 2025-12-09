@@ -180,12 +180,16 @@ const buildQueryString = (params?: GameQueryParams) => {
 
 async function http<T>(path: string, opts: RequestInit = {}): Promise<T> {
   const isFormData = opts.body instanceof FormData;
-  const defaultHeaders = isFormData ? {} : { "Content-Type": "application/json" };
-  const mergedHeaders = { ...defaultHeaders, ...(opts.headers || {}) };
+  const headers: Record<string, string> = { ...(opts.headers || {}) };
+
+  // Only add JSON content type when sending a non-FormData body and caller didn't override it
+  if (opts.body && !isFormData && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   const res = await fetch(`${API_BASE}${path}`, {
     ...opts,
-    headers: mergedHeaders,
+    headers,
   });
   if (!res.ok) throw await res.json().catch(() => ({ error: res.statusText }));
   return res.json();
