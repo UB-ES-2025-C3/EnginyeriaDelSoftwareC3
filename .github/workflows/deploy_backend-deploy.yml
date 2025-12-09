@@ -35,7 +35,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run frontend unit tests
-        run: npm run test:unit
+        run: npm run test:coverage
 
       - name: Run Cypress E2E tests
         run: npm run e2e:ci

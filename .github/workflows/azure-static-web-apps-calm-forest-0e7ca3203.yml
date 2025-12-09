@@ -39,7 +39,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run frontend unit tests
-        run: npm run test:unit
+        run: npm run test:coverage
 
       - name: Run frontend end-to-end tests
         run: npm run test:e2e
