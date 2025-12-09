@@ -1,6 +1,7 @@
-import { create } from "domain";
-
-export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
+export const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:4000";
 
 // ⭐ CAMBIO 1: User completo con avatarUrl, bio, etc.
 type User = {
@@ -55,6 +56,10 @@ export interface Review {
     _id?: string
     name?: string
   }
+
+  likes: number
+  dislikes: number
+  userVote: 'like' | 'dislike' | null
 }
 
 export interface CreateReviewPayload {
@@ -94,6 +99,28 @@ export type Game = {
   image: string;
   reviews: Review[];
 };
+
+export interface CommunityPost {
+  _id: string;
+  text: string;
+  videoUrl?: string;
+  createdAt: string;
+  user: {
+    _id: string;
+    name: string;
+    avatarUrl?: string;
+  };
+  comments?: {
+    _id: string;
+    text: string;
+    createdAt: string;
+    user: {
+      _id: string;
+      name: string;
+      avatarUrl?: string;
+    };
+  }[];
+}
 
 // ⭐ NUEVO: Tipo para Solicitud
 export type Solicitud = {
@@ -151,10 +178,18 @@ const buildQueryString = (params?: GameQueryParams) => {
   return qs ? `?${qs}` : '';
 };
 
-async function http<T>(path: string, opts?: RequestInit): Promise<T> {
+async function http<T>(path: string, opts: RequestInit = {}): Promise<T> {
+  const isFormData = opts.body instanceof FormData;
+  const headers: Record<string, string> = { ...(opts.headers || {}) };
+
+  // Only add JSON content type when sending a non-FormData body and caller didn't override it
+  if (opts.body && !isFormData && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...(opts?.headers || {}) },
     ...opts,
+    headers,
   });
   if (!res.ok) throw await res.json().catch(() => ({ error: res.statusText }));
   return res.json();
@@ -167,13 +202,13 @@ export const api = {
       "/api/auth/register",
       { method: "POST", body: JSON.stringify(payload) }
     ),
-    
+
   login: (payload: { email: string; password: string }) =>
     http<{ token: string; user: User }>( // Cambiado el tipo de retorno
       "/api/auth/login",
       { method: "POST", body: JSON.stringify(payload) }
     ),
-    
+
   // ⭐ CAMBIO 3: /me ahora retorna User completo
   me: (token: string) =>
     http<{ user: User }>("/api/auth/me", { // Cambiado el tipo de retorno
@@ -196,7 +231,7 @@ export const api = {
       },
       body: JSON.stringify(payload),
     }),
-    
+
   uploadProfileMedia: (token: string, formData: FormData) =>
     fetch(`${API_BASE}/api/profile/me/media`, {
       method: 'POST',
@@ -213,20 +248,20 @@ export const api = {
   // Jocs
   getGames: (params?: GameQueryParams) =>
     http<PaginatedGamesResponse>(`/api/games${buildQueryString(params)}`),
-  getGame:  (id: string) => http<Game>(`/api/games/${id}`),
+  getGame: (id: string) => http<Game>(`/api/games/${id}`),
 
   // Ressenyes
   getAllReviews: () => http<Review[]>("/api/reviews"),
 
   createReview: (token: string, gameId: string, payload: CreateReviewPayload) =>
     http<CreateReviewResponse>(`/api/reviews/${gameId}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(payload),
-  }),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    }),
 
   getGameReviews: (gameId: string) => http<GameReviewsResponse>(`/api/games/${gameId}/reviews`),
 
@@ -271,5 +306,25 @@ export const api = {
     http<{ success: boolean; message: string }>(`/api/solicitudes/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
+    }),
+
+  // Minimal test endpoint to verify deployments
+  ping: () => http<{ message: string; environment?: string; timestamp?: string }>("/api/test"),
+
+  // ⭐ NUEVO: Community Wall
+  getPosts: () => http<CommunityPost[]>("/api/posts"),
+
+  createPost: (token: string, payload: { text: string; videoUrl?: string }) =>
+    http<{ success: boolean; post: CommunityPost }>("/api/posts", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload),
+    }),
+
+  addComment: (token: string, postId: string, text: string) =>
+    http<{ success: boolean; comment: any }>(`/api/posts/${postId}/comments`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ text }),
     }),
 };

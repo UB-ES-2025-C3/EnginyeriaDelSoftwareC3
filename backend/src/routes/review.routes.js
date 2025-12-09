@@ -12,8 +12,8 @@ router.get('/', async (req, res, next) => {
     const reviews = await Review
       .find()
       .populate('user', 'name avatarUrl')  // usuario
-      .populate('game', 'name')            // nombre del juego
-      .sort({ createdAt: -1 })            // más nuevas primero
+      .populate('game', 'name')            // 👈 nombre del juego
+      .sort({ createdAt: -1 })            // opcional: más nuevas primero
       .lean();
 
     res.json(reviews);
@@ -62,5 +62,6 @@ router.post('/:gameId', auth, async (req, res) => {
     res.status(500).json({ message: 'Error al crear la reseña' });
   }
 });
+
 
 export default router;

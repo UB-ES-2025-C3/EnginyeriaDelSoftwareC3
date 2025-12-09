@@ -12,6 +12,8 @@ import profileRoutes from './routes/profile.routes.js';
 import gameRoutes from './routes/game.routes.js';
 import reviewRoutes from './routes/review.routes.js';
 import solicitudRoutes from './routes/solicitud.routes.js';
+import postRoutes from './routes/post.routes.js';
+import testRoutes from './routes/test.routes.js';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -22,12 +24,12 @@ app.use(helmet());
 
 // Frontends que tenen permís
 const allowedOrigins = [
-  'https://calm-forest-0e7ca3203.3.azurestaticapps.net', 
-  'https://witty-bay-0f8f41603.3.azurestaticapps.net', 
+  'https://calm-forest-0e7ca3203.3.azurestaticapps.net',
+  'https://witty-bay-0f8f41603.3.azurestaticapps.net',
   'http://localhost:3000',
   'http://localhost:5173',
   'http://localhost:4000',
-  env.corsOrigin                                    
+  env.corsOrigin
 ];
 
 app.use(cors({
@@ -50,6 +52,8 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api', solicitudRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api', testRoutes);
 
 app.get('/health', (_, res) => res.json({ ok: true }));
 

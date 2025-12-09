@@ -4,9 +4,10 @@
     <div class="w-full max-w-md">
       <!-- Logo/Brand -->
       <div class="mb-8 text-center">
-        <p class="text-sm md:text-base text-white font-bold uppercase tracking-wide mb-2">
+        <button @click="$router.push('/Cataleg')"
+          class="px-6 py-3 sm:px-7 sm:py-3.5 md:px-8 md:py-4 text-sm sm:text-base border-2 border-gray-600 rounded-xl hover:bg-gray-800 transition-all font-semibold uppercase tracking-wide whitespace-nowrap">
           Checkpoint
-        </p>
+        </button>
         <h2 class="text-4xl md:text-5xl font-extrabold mb-2">Iniciar sessió</h2>
         <p class="text-gray-400 text-sm">Benvingut de nou al teu espai gamer</p>
       </div>

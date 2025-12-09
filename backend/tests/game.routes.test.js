@@ -13,12 +13,28 @@ app.use('/api/games', gameRoutes);
 describe('Game Routes', () => {
   beforeAll(async () => {
     await connectDB();
-    await Game.deleteMany({});
+
+    // Assegurem que la col·lecció "games" comença buida al test DB
+    const collections = await mongoose.connection.db.listCollections({ name: 'games' }).toArray();
+    if (collections.length > 0) {
+      await mongoose.connection.db.collection('games').deleteMany({});
+    }
+  });
+
+  beforeEach(async () => {
+    await Game.deleteMany({}); // neteja per si algun test ha afegit coses
+
     await Game.insertMany([
-      { name: 'Game A - RPG', genre: 'RPG', platform: 'PC', year: 2022, reviews: [{ stars: 5 }, { stars: 4 }] }, // Avg: 4.5, Reviews: 2
-      { name: 'Game B - Action', genre: 'Action', platform: 'PS5', year: 2023, reviews: [{ stars: 3 }] }, // Avg: 3, Reviews: 1
-      { name: 'Game C - Another RPG', genre: 'RPG', platform: 'Xbox', year: 2021, reviews: [{ stars: 5 }, { stars: 5 }, { stars: 5 }] }, // Avg: 5, Reviews: 3
+      { name: 'Game A - RPG', genre: 'RPG', platform: 'PC', year: 2022, reviews: [{ stars: 5 }, { stars: 4 }] },
+      { name: 'Game B - Action', genre: 'Action', platform: 'PS5', year: 2023, reviews: [{ stars: 3 }] },
+      { name: 'Game C - Another RPG', genre: 'RPG', platform: 'Xbox', year: 2021, reviews: [{ stars: 5 }, { stars: 5 }, { stars: 5 }] },
     ]);
+
+    const seeded = await Game.countDocuments();
+  });
+
+  afterEach(async () => {
+    await Game.deleteMany({});
   });
 
   afterAll(async () => {
@@ -27,14 +43,6 @@ describe('Game Routes', () => {
   });
 
   describe('GET /api/games', () => {
-    // it('should return a paginated list of games', async () => {
-    //   const res = await request(app).get('/api/games');
-    //   expect(res.statusCode).toEqual(200);
-    //   expect(res.body.items).toHaveLength(3);
-    //   expect(res.body.totalItems).toBe(3);
-    //   expect(res.body.page).toBe(1);
-    // });
-
     it('should filter by search query "Action"', async () => {
       const res = await request(app).get('/api/games?q=Action');
       expect(res.statusCode).toEqual(200);
@@ -49,34 +57,35 @@ describe('Game Routes', () => {
     });
     
     it('should sort by "best" (averageRating desc)', async () => {
-        const res = await request(app).get('/api/games?sort=best');
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.items[0].name).toBe('Game C - Another RPG'); // Avg 5
-        expect(res.body.items[1].name).toBe('Game A - RPG'); // Avg 4.5
+      const res = await request(app).get('/api/games?sort=best');
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.items[0].name).toBe('Game C - Another RPG'); // Avg 5
+      expect(res.body.items[1].name).toBe('Game A - RPG');         // Avg 4.5
     });
 
     it('should sort by "worst" (averageRating asc)', async () => {
-        const res = await request(app).get('/api/games?sort=worst');
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.items[0].name).toBe('Game B - Action'); // Avg 3
-        expect(res.body.items[1].name).toBe('Game A - RPG'); // Avg 4.5
+      const res = await request(app).get('/api/games?sort=worst');
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.items[0].name).toBe('Game B - Action');      // Avg 3
+      expect(res.body.items[1].name).toBe('Game A - RPG');         // Avg 4.5
     });
 
     it('should handle pagination correctly', async () => {
-        const res = await request(app).get('/api/games?page=2&limit=2');
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.items).toHaveLength(1);
-        expect(res.body.page).toBe(2);
-        expect(res.body.pageSize).toBe(2);
-        expect(res.body.totalPages).toBe(2);
+      const res = await request(app).get('/api/games?page=2&limit=2');
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.items).toHaveLength(1);
+      expect(res.body.page).toBe(2);
+      expect(res.body.pageSize).toBe(2);
+      expect(res.body.totalPages).toBe(2);
     });
   });
 
   describe('GET /api/games/:id', () => {
     it('should return a single game for a valid ID', async () => {
       const game = await Game.findOne({ name: 'Game A - RPG' });
+      expect(game).not.toBeNull();
+
       const res = await request(app).get(`/api/games/${game._id}`);
-      
       expect(res.statusCode).toEqual(200);
       expect(res.body.name).toBe('Game A - RPG');
     });

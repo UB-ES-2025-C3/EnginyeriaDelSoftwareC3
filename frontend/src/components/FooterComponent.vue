@@ -8,9 +8,12 @@
           <h4 class="font-semibold mb-4 text-white flex items-center gap-2">
             CheckPoint
           </h4>
-          <p class="text-gray-400 text-sm">
-            La teva plataforma de confiança per descobrir, valorar i compartir els teus jocs preferits.
-          </p>
+          <ul class="space-y-2 text-sm">
+            <li>
+              <router-link to="/cataleg" class="text-gray-400 hover:text-white transition-colors">La teva plataforma de
+                confiança per descobrir, valorar i compartir els teus jocs preferits.</router-link>
+            </li>
+          </ul>
         </div>
 
 
